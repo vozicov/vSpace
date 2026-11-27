@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}{{ collection.title }} · space{% endblock %}
+{% block container_class %}feed profile-page{% endblock %}
+{% block body_attrs %}class="themed{% if profile_user.profile.cursor %} has-cursor{% endif %}" style="--page-bg: {{ profile_user.profile.background_color }};{% if profile_user.profile.background_image %} --page-bg-image: url('{{ profile_user.profile.background_image.url }}');{% endif %}{% if profile_user.profile.cursor and not profile_user.profile.cursor_steps %} --profile-cursor: url('{{ profile_user.profile.cursor.url }}') 0 0, auto;{% endif %}"{% if profile_user.profile.cursor and profile_user.profile.cursor_steps %} data-cursor-src="{{ profile_user.profile.cursor.url }}" data-cursor-frames="{{ profile_user.profile.cursor_frames }}" data-cursor-steps="{{ profile_user.profile.cursor_steps_json }}"{% endif %}{% endblock %}
+{% block content %}
+{% with prof=profile_user.profile %}
+<div class="profile-card font-{{ prof.font }}" style="--card-bg: {{ prof.card_color }}; --card-fg: {{ prof.card_text_color }};">
+    <div class="sheet-inner">
+        <header class="c-head">
+            <a class="c-back" href="{% url 'profile' profile_user.username %}#collections">&larr; @{{ profile_user.username }}</a>
+            <h1 class="p-name">{{ collection.title }}</h1>
+            <p class="p-stats">{{ items|length }} post{{ items|length|pluralize }}</p>
+            {% if is_owner %}
+                <div class="p-actions">
+                    <a class="pill primary" href="{% url 'collection_add_posts' collection.pk %}">+ Add posts</a>
+                    <a class="pill" href="{% url 'item_edit' collection.pk %}">Rename</a>
+                    <a class="pill" href="{% url 'item_delete' collection.pk %}">Delete</a>
+                </div>
+            {% endif %}
+        </header>
+        <section class="block">
+            {% if items %}
+                <div class="rec-grid">
+                    {% for item in items %}
+                        {% include 'feed/_rec.html' with entry=item.card editing=is_owner %}
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="note">{% if is_owner %}Empty for now. Add posts above.{% else %}Nothing in here yet.{% endif %}</p>
+            {% endif %}
+        </section>
+    </div>
+</div>
+{% endwith %}
+{% endblock %}

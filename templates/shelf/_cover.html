@@ -1,0 +1,8 @@
+{% comment %}Collage for a collection: up to 4 of its posts, tilted. Needs `collection`.{% endcomment %}
+<span class="cover n-{{ collection.children.all|slice:":4"|length }}">
+    {% for child in collection.children.all|slice:":4" %}
+        <span class="piece p{{ forloop.counter }}">
+            {% if child.preview_url %}<img src="{{ child.preview_url }}" alt="" loading="lazy" referrerpolicy="no-referrer">{% else %}<span class="piece-text">{{ child.label|truncatechars:24 }}</span>{% endif %}
+        </span>
+    {% endfor %}
+</span>

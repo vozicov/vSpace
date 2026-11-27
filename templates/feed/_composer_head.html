@@ -1,0 +1,8 @@
+{% comment %}Who is writing: avatar, name and @handle. Used at the top of the post and tweet composers.{% endcomment %}
+<header class="composer-head">
+    {% include 'feed/_avatar.html' with p=request.user.profile %}
+    <span class="composer-who">
+        <span class="composer-name">{{ request.user.profile.name }}</span>
+        <span class="composer-handle">@{{ request.user.username }}</span>
+    </span>
+</header>

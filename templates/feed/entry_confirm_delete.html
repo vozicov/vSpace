@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Delete · space{% endblock %}
+{% block container_class %}wide{% endblock %}
+{% block content %}
+    <h2 class="block-title">Delete {% if entry.kind == 'post' %}post{% elif entry.parent_id %}comment{% else %}tweet{% endif %}</h2>
+    <div class="panel">
+        <p>Delete <strong>{% if entry.title %}{{ entry.title }}{% else %}{{ entry.body|truncatechars:80 }}{% endif %}</strong>? This cannot be undone.</p>
+        <p class="help">
+            Its likes{% if entry.reply_count %} and its {{ entry.reply_count }} comment{{ entry.reply_count|pluralize }}{% endif %} go with it{% if entry.kind == 'post' %}, and it leaves every shelf, collection and profile it was on{% endif %}.
+        </p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn-danger">Delete</button>
+        </form>
+        <p><a class="back" href="{{ entry.get_absolute_url }}">Cancel</a></p>
+    </div>
+{% endblock %}

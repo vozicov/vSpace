@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load side_tags %}
+{% block title %}Explore · space{% endblock %}
+{% block container_class %}explore-page{% endblock %}
+{% block content %}
+    {% include 'search/_bar.html' %}
+
+    <div class="explore-grid">
+        {% for entry in page_obj %}
+            <a class="explore-item" href="{{ entry.get_absolute_url }}" aria-label="{{ entry.title }}" style="--rot: {{ entry.pk|tilt }}deg;">
+                <img src="{{ entry.preview_url }}" alt="" loading="lazy" referrerpolicy="no-referrer">
+            </a>
+        {% empty %}
+            <p class="note">Nothing to explore yet.</p>
+        {% endfor %}
+    </div>
+    {% include 'feed/_pager.html' %}
+{% endblock %}

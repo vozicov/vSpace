@@ -1,0 +1,28 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en"{% if user.is_authenticated and user.profile.theme %} data-theme="{{ user.profile.theme }}"{% endif %}>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}space{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/fonts.css' %}">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/feed.css' %}">
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+    <link rel="stylesheet" href="{% static 'css/shelf.css' %}">
+    <link rel="stylesheet" href="{% static 'css/music.css' %}">
+    <script src="{% static 'js/music_player.js' %}" defer></script>
+    <script src="{% static 'js/cursor_anim.js' %}" defer></script>
+</head>
+<body {% block body_attrs %}{% endblock %}>
+    {% if user.is_authenticated %}{% include 'feed/_sidebar.html' %}{% include 'feed/_sidebar_right.html' %}{% endif %}
+    <div class="page{% if user.is_authenticated %} with-side{% endif %}">
+        {% block site_header %}<header class="site-header">
+            <a class="logo" href="{% if user.is_authenticated %}{% url 'home' %}{% else %}{% url 'login' %}{% endif %}">space</a>
+        </header>{% endblock %}
+        <main class="container {% block container_class %}{% endblock %}">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+    {% if user.is_authenticated %}{% include 'feed/_bottom_nav.html' %}{% endif %}
+</body>
+</html>

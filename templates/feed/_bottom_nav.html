@@ -1,0 +1,11 @@
+{% load notif_tags %}
+{% with current=request.resolver_match.url_name %}{% unread_notifications as unread %}
+<nav class="bottom-nav">
+    <a href="{% url 'home' %}" class="{% if current == 'home' %}active{% endif %}">Home</a>
+    <a href="{% url 'explore' %}" class="{% if current == 'explore' %}active{% endif %}">Explore</a>
+    <a href="{% url 'post_create' %}" class="nav-create" aria-label="Create">+</a>
+    <a href="{% url 'tweets' %}" class="{% if current == 'tweets' %}active{% endif %}">Tweets</a>
+    <a href="{% url 'notifications' %}" class="nav-alerts {% if current == 'notifications' %}active{% endif %}">Alerts{% if unread %}<span class="badge" aria-label="{{ unread }} unread">{% if unread > 99 %}99+{% else %}{{ unread }}{% endif %}</span>{% endif %}</a>
+    <a href="{% url 'profile' request.user.username %}" class="{% if current == 'profile' %}active{% endif %}">Profile</a>
+</nav>
+{% endwith %}

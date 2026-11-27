@@ -1,0 +1,393 @@
+/* ---------- The profile sheet ----------
+   Layout of the reference: avatar with little sticker "pins" peeking out, name, @handle,
+   pill buttons, then Collections (a sideways carousel) and a grid of posts.
+
+   BACKGROUND: the page color / picture the owner chose is the table; the whole profile is a
+   sheet of paper (the card color) lying on it with a margin all around. The picture stays
+   visible and the content stays flat, readable and in the reference's style.
+   Inside the sheet --ink / --accent follow the card color, so any card color works. */
+.profile-card {
+    --ink: var(--card-fg);
+    --accent: color-mix(in srgb, #6d4c41 70%, var(--card-fg));
+    --on-accent: var(--card-bg);
+    max-width: 88rem;
+    margin: 0 auto 1.5rem;
+    background: var(--card-bg);
+    color: var(--card-fg);
+    border-radius: 0;
+    box-shadow: none;
+    font-synthesis: none;   /* fonts without a bold face stay regular */
+}
+.container.profile-page { padding-bottom: 6rem; }
+.sheet-inner { padding: 1.25rem 1rem 3rem; }
+@media (min-width: 768px) {
+    .profile-card { margin-bottom: 2rem; }
+    .sheet-inner { padding: 2.5rem 2.5rem 4rem; }
+}
+
+.sheet-banner { aspect-ratio: 3 / 1; width: 100%; overflow: hidden; border-radius: 0; }
+.sheet-banner img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.sheet-banner + .sheet-inner { padding-top: 1.5rem; }
+
+/* ---------- Header ---------- */
+.p-head, .c-head { display: flex; flex-direction: column; align-items: center; gap: 1rem; text-align: center; }
+.p-info { display: flex; flex-direction: column; align-items: center; min-width: 0; }
+.p-name { font-size: 1.5rem; line-height: 1.15; overflow-wrap: anywhere; }
+.p-handle { margin: 0.35rem 0 0; font-family: var(--mono); font-size: 0.75rem; opacity: 0.7; }
+.p-bio { max-width: 26rem; margin: 0.75rem 0 0; font-size: 0.875rem; line-height: 1.35; opacity: 0.85; }
+.p-stats { margin: 0.75rem 0 0; font-size: 0.75rem; opacity: 0.8; }
+.p-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem; margin-top: 1rem; }
+.c-back { font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; opacity: 0.6; }
+.c-head .p-stats { margin-top: 0.4rem; }
+
+@media (min-width: 768px) {
+    /* the profile header stays a vertical stack on a computer: picture, then everything under it */
+    .p-head { gap: 1.5rem; }
+    .p-name { font-size: 2.75rem; }
+    .p-handle { margin-top: 0.5rem; font-size: 1.25rem; }
+    .p-bio { max-width: 38rem; margin-top: 1rem; font-size: 1.25rem; line-height: 1.4; }
+    .p-stats { margin-top: 1rem; font-size: 1.125rem; }
+    .p-actions { margin-top: 1.5rem; gap: 1rem; }
+    .p-head .pill, .p-head button { font-size: 1.0625rem; padding: 0.7rem 1.9rem; }
+    .c-head { align-items: flex-start; text-align: left; flex-direction: column; gap: 0.75rem; }
+    .c-head .p-name { font-size: 1.875rem; }
+    .c-head .p-stats { font-size: 0.875rem; }
+    .c-head .p-actions { justify-content: flex-start; margin-top: 0.5rem; }
+}
+
+/* Avatar. On a phone the pins form a row around it (two left, two right, overlapping);
+   on a computer they peek out of its four corners. The wrapper carries the shadow because
+   a mask would clip a shadow on the picture itself. */
+.p-avatar { --pfp: 6.5rem; display: flex; align-items: center; justify-content: center; }
+.pfp-wrap { position: relative; z-index: 5; filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2)); }
+.profile-card .avatar.xl { display: flex; width: var(--pfp); height: var(--pfp); font-size: calc(var(--pfp) / 2.5); }
+.pins { display: flex; align-items: center; }
+.pin-slot, .pin-empty { position: relative; flex: none; width: 3.5rem; height: 3.5rem; margin: 0 -0.3rem; }
+.pin-slot { transform: rotate(var(--rot, 0deg)); filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2)); }
+.pins-left .pin-slot:nth-child(1) { z-index: 1; }
+.pins-left .pin-slot:nth-child(2) { z-index: 2; }
+.pins-right .pin-slot:nth-child(1) { z-index: 3; }
+.pins-right .pin-slot:nth-child(2) { z-index: 2; }
+.pin { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
+.pin:hover { text-decoration: none; }
+.pin img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.pin-text { padding: 0.2rem; font-size: 0.55rem; font-weight: 700; line-height: 1.1; text-align: center; word-break: break-word; }
+.pin-unpin { position: absolute; top: -0.3rem; right: -0.3rem; z-index: 6; margin: 0; }
+.pin-unpin button {
+    width: 1.1rem; height: 1.1rem; padding: 0; border-radius: 50%;
+    background: var(--card-fg); border-color: var(--card-fg); color: var(--card-bg); font-size: 0.8rem; line-height: 1;
+}
+/* The + for an empty spot (owner only) */
+.pin-empty {
+    display: flex; align-items: center; justify-content: center;
+    width: 2.4rem; height: 2.4rem; margin: 0 0.15rem;
+    border: 1.5px dashed var(--line-strong); border-radius: 50%;
+    font-size: 1.1rem; opacity: 0.6;
+}
+.pin-empty:hover { opacity: 1; text-decoration: none; }
+
+@media (min-width: 768px) {
+    .p-avatar { --pfp: 18rem; position: relative; flex: none; width: var(--pfp); height: var(--pfp); margin: 0.5rem 1rem; }
+    /* with a banner: it runs the full width of the card and reaches 70% down the picture */
+    .sheet-banner + .sheet-inner { padding-top: 0; }
+    .sheet-banner + .sheet-inner .p-avatar { margin-top: calc(var(--pfp) * -0.7); }
+    .pins { display: contents; }
+    .pin-slot, .pin-empty { position: absolute; z-index: 1; width: 4.4rem; height: 4.4rem; margin: 0; transition: transform 0.35s; }
+    .pin-empty { width: 3rem; height: 3rem; }
+    .slot-1 { top: -0.4rem; left: -0.8rem; }
+    .slot-2 { bottom: -0.4rem; left: -0.8rem; }
+    .slot-3 { top: -0.4rem; right: -0.8rem; }
+    .slot-4 { bottom: -0.4rem; right: -0.8rem; }
+    /* on hover the pins slide out and show more of themselves */
+    .p-avatar:hover .slot-1 { transform: translate(-0.9rem, -0.7rem) rotate(var(--rot, 0deg)); }
+    .p-avatar:hover .slot-2 { transform: translate(-0.9rem, 0.7rem) rotate(var(--rot, 0deg)); }
+    .p-avatar:hover .slot-3 { transform: translate(0.9rem, -0.7rem) rotate(var(--rot, 0deg)); }
+    .p-avatar:hover .slot-4 { transform: translate(0.9rem, 0.7rem) rotate(var(--rot, 0deg)); }
+}
+
+/* ---------- Sections ---------- */
+.block { margin-top: 2.5rem; }
+.block-head { display: flex; align-items: baseline; justify-content: space-between; gap: 0.75rem; margin-bottom: 1.5rem; }
+.block-head h2 { font-size: 1.125rem; }
+.block-link { font-size: 0.875rem; white-space: nowrap; }
+.block-link:hover { text-decoration: underline; }
+@media (min-width: 768px) {
+    .block { margin-top: 4rem; }
+    .block-head { margin-bottom: 2.5rem; }
+    .block-head h2 { font-size: 1.875rem; }
+    .block-link { font-size: 1rem; }
+}
+
+/* Collections: a grid. 2 across on a phone, 4 across on a computer, as many rows as needed. */
+.carousel {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem 1rem; align-items: start;
+}
+@media (min-width: 768px) { .carousel { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2.5rem 1.5rem; } }
+.tile { min-width: 0; }
+.tile-art { position: relative; display: block; aspect-ratio: 1; }
+.tile-art:hover { text-decoration: none; }
+.tile-name {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem;
+    margin-top: 1rem; font-size: 0.75rem; font-weight: 500;
+}
+.tile-name a { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+.tile-name span { flex-shrink: 0; font-family: var(--mono); font-weight: 400; font-size: 0.6875rem; text-transform: uppercase; opacity: 0.5; }
+@media (min-width: 768px) { .tile-name { font-size: 1.0625rem; } .tile-name span { font-size: 0.8125rem; } }
+.tile-new {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.25rem;
+    aspect-ratio: 1; border: 1.5px dashed var(--line-strong); opacity: 0.7;
+}
+.tile-new:hover { opacity: 1; text-decoration: none; }
+.tile-new span { font-size: 2rem; line-height: 1; }
+.tile-new small { font-family: var(--mono); font-size: 0.7rem; text-transform: uppercase; }
+
+/* ---------- The post feed (Instagram style) ----------
+   One column of posts separated by a single line on top of each one (no side or bottom
+   borders, nothing rounded). Inside a post: who posted (big picture and name), then the
+   title and text, then the picture. Every picture has the same height, is centered, keeps
+   its proportions and has no background behind it. */
+.block-head-filters { justify-content: center; }
+.post-feed { width: 100%; margin: 0 auto 2rem; }
+@media (min-width: 768px) { .post-feed { width: 80%; } }
+.post-feed .entry {
+    display: flex; flex-direction: column;
+    margin: 0 0 1.75rem; padding: 1.5rem 1.25rem 0; overflow: hidden;
+    border: 0; border-top: 1px solid var(--line-strong); border-radius: 0;
+}
+.post-feed .entry-header { order: 0; gap: 1rem; margin-bottom: 1.1rem; }
+.post-feed .entry-header .avatar { width: 3.5rem; height: 3.5rem; font-size: 1.4rem; }
+.post-feed .entry-who { flex-direction: column; align-items: flex-start; gap: 0.1rem; }
+.post-feed .entry-who strong { font-size: 1.25rem; line-height: 1.15; }
+.post-feed .entry-who .small { font-size: 0.9375rem; }
+.post-feed .entry-time { font-size: 0.8125rem; }
+.post-feed .reply-to { order: 0; }
+.post-feed .entry h3 { order: 1; font-size: 1.5rem; }
+.post-feed .entry p { order: 2; font-size: 1rem; }
+.post-feed .entry-media {
+    order: 3; flex: none; align-self: center;
+    width: auto; max-width: 100%; height: clamp(18rem, 60vh, 30rem); max-height: none;
+    margin: 0.5rem 0 1rem; object-fit: contain; object-position: center; background: none;
+}
+.post-feed video.entry-media { background: none; }
+.post-feed .entry-actions { order: 4; padding-bottom: 1.25rem; }
+.post-feed .note { margin: 0; text-align: center; }
+@media (min-width: 768px) { .post-feed .entry p { font-size: 1.0625rem; } }
+
+/* ---------- Edit profile: a studio ----------
+   Left: a tools panel (grouped, scrolls on its own). Right: your real profile card, live, drawn
+   on top of your page background. Nothing here is a browser-default control: the file and color
+   inputs are invisible and sit behind themed tiles and buttons (the label still opens the dialog).
+   Under 1200px wide the two take turns (a Tools | Preview switch). */
+.studio .sidebar-right { display: none !important; }
+.container.edit-page { padding-bottom: 7rem; }
+.pe [hidden] { display: none !important; }
+
+/* labels that are really buttons or tiles must not use the small uppercase label look */
+.pe .upload-tile, .pe .swatch-btn, .pe .chip, .pe .shape-opt, .pe .font-opt {
+    margin: 0; text-transform: none; letter-spacing: 0; opacity: 1;
+}
+/* (the font samples keep their own font, so they are left out of this one) */
+.pe .upload-tile, .pe .swatch-btn, .pe .chip, .pe .shape-opt { font-family: var(--sans); }
+
+/* ----- narrow screens: head, tools or preview, then the Publish bar ----- */
+.pe-studio { display: flex; flex-direction: column; gap: 1rem; max-width: 40rem; margin: 0.75rem auto 0; }
+.pe-tools { display: contents; }
+.pe-tools-head, .pe-tools-body, .pe-tools-foot {
+    border: 1px solid rgba(0, 0, 0, 0.1); border-radius: 0.75rem; background: #fbfafa; color: #000;
+}
+.pe-tools-head { order: 1; position: sticky; top: 0.5rem; z-index: 25; padding: 1rem 1.25rem; background: color-mix(in srgb, #fbfafa 92%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.pe-tools-body { order: 2; padding: 0 1.25rem; }
+.pe-stage { order: 3; }
+.pe-tools-foot { order: 4; position: sticky; bottom: 5rem; z-index: 25; padding: 0.75rem; background: color-mix(in srgb, #fbfafa 92%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+
+.pe-title { font-size: 1.5rem; }
+.pe-sub { margin: 0.3rem 0 0; font-size: 0.8125rem; line-height: 1.35; opacity: 0.65; }
+.pe-actions { display: flex; align-items: center; gap: 0.6rem; }
+.pe-actions .pill { padding: 0.65rem 1.25rem; font-size: 0.875rem; }
+.pe-actions button { flex: 1; padding: 0.7rem 1.5rem; font-size: 0.9375rem; }
+.pe-tools-foot .upload-progress { padding: 0 0.25rem 0.75rem; border-top: 0; }
+.pe-tools-foot .upload-error { margin: 0 0 0.6rem; padding: 0 0.25rem; }
+
+/* Tools | Preview switch (JavaScript shows it) */
+.seg { display: flex; margin-top: 0.9rem; padding: 0.2rem; border: 1px solid var(--line-strong); border-radius: 999px; }
+.seg-btn { flex: 1; padding: 0.4rem 1.1rem; border: 0; border-radius: 999px; background: transparent; color: var(--ink); font-size: 0.8125rem; }
+.seg-btn:hover { opacity: 1; background: color-mix(in srgb, var(--ink) 8%, transparent); }
+.seg-btn.on, .seg-btn.on:hover { background: var(--accent); color: var(--on-accent); }
+.pe[data-mode="edit"] .pe-stage { display: none; }
+.pe[data-mode="preview"] .pe-tools-body { display: none; }
+
+/* ----- tool groups: <details>, open by default, tidy to fold away ----- */
+.pe-sec { border-top: 1px solid rgba(0, 0, 0, 0.08); }
+.pe-sec:first-child { border-top: 0; }
+.pe-sec summary {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    padding: 1.1rem 0; list-style: none; cursor: pointer;
+    font-family: var(--serif); font-size: 1.1875rem; font-weight: 700;
+}
+.pe-sec summary::-webkit-details-marker { display: none; }
+.pe-sec summary::after {
+    content: ''; flex: none; width: 0.5rem; height: 0.5rem; margin-right: 0.2rem;
+    border-right: 2px solid currentColor; border-bottom: 2px solid currentColor;
+    transform: rotate(45deg); transition: transform 0.2s; opacity: 0.55;
+}
+.pe-sec[open] summary::after { transform: rotate(-135deg); }
+.pe-sec summary:hover::after { opacity: 1; }
+.pe-sec summary:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; border-radius: 0.25rem; }
+.pe-sec-body { padding: 0 0 1.6rem; }
+
+.pe-field { margin-bottom: 1.5rem; }
+.pe-field:last-child { margin-bottom: 0; }
+.pe-field > label:first-child, .pe-label { display: block; margin-bottom: 0.5rem; font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em; opacity: 0.75; }
+.pe-field textarea { margin-bottom: 0.25rem; }
+.pe-count { display: block; font-family: var(--mono); font-size: 0.75rem; text-align: right; opacity: 0.6; }
+
+/* Themed file picker: thumbnail + text + pill. The real input is invisible but focusable. */
+.upload-field { position: relative; }
+.upload-field input[type="file"] { position: absolute; width: 1px; height: 1px; padding: 0; border: 0; opacity: 0; overflow: hidden; pointer-events: none; }
+.upload-tile {
+    display: flex; align-items: center; gap: 0.9rem; padding: 0.7rem;
+    border: 1px solid rgba(0, 0, 0, 0.12); border-radius: 0.5rem; background: #fff;
+    cursor: pointer; transition: border-color 0.15s;
+}
+.upload-tile:hover { border-color: rgba(0, 0, 0, 0.4); }
+.upload-field input:focus-visible + .upload-tile { outline: 2px solid var(--ink); outline-offset: 2px; }
+.upload-thumb {
+    display: flex; align-items: center; justify-content: center; flex: none;
+    width: 3.75rem; height: 3.75rem; overflow: hidden; border-radius: 0.4rem;
+    background: color-mix(in srgb, #000 7%, transparent);
+}
+.upload-tile:has(.upload-thumb.wide) { flex-wrap: wrap; }
+.upload-thumb.wide { width: 100%; height: auto; aspect-ratio: 3 / 1; }
+.upload-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.upload-plus { font-family: var(--serif); font-size: 1.5rem; line-height: 1; opacity: 0.6; }
+.upload-text { display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; }
+.upload-text strong { font-size: 0.875rem; font-weight: 700; }
+.upload-text small { font-size: 0.75rem; line-height: 1.25; opacity: 0.6; overflow-wrap: anywhere; }
+.upload-pick {
+    flex: none; margin-left: auto; padding: 0.4rem 1.1rem;
+    border: 1px solid var(--line-strong); border-radius: 999px; font-size: 0.75rem; transition: background-color 0.15s, color 0.15s;
+}
+.upload-tile:hover .upload-pick, .swatch-btn:hover .upload-pick { border-color: var(--accent); background: var(--accent); color: var(--on-accent); }
+
+/* Themed color button + quick picks */
+.color-field { position: relative; }
+.color-field input[type="color"] { position: absolute; width: 1px; height: 1px; padding: 0; border: 0; opacity: 0; pointer-events: none; }
+.swatch-btn {
+    display: flex; align-items: center; gap: 0.75rem; padding: 0.55rem 0.7rem;
+    border: 1px solid rgba(0, 0, 0, 0.12); border-radius: 0.5rem; background: #fff; cursor: pointer;
+}
+.swatch-btn:hover { border-color: rgba(0, 0, 0, 0.4); }
+.color-field input:focus-visible + .swatch-btn { outline: 2px solid var(--ink); outline-offset: 2px; }
+.swatch-dot { flex: none; width: 2rem; height: 2rem; border: 1px solid rgba(0, 0, 0, 0.2); border-radius: 50%; background: var(--sw); }
+.swatch-hex { font-family: var(--mono); font-size: 0.875rem; }
+.presets { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.6rem; }
+.preset {
+    width: 1.75rem; height: 1.75rem; padding: 0; border: 1px solid rgba(0, 0, 0, 0.25); border-radius: 50%;
+    background: var(--sw);
+}
+.preset:hover { opacity: 1; transform: scale(1.1); }
+.preset.on { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+/* Themed checkbox: a pill that fills when switched on */
+.chip { position: relative; display: inline-block; cursor: pointer; }
+.pe .chip { margin: 0.75rem 0 0; }
+.chip input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.chip span {
+    display: inline-block; padding: 0.35rem 1rem;
+    border: 1px solid var(--line-strong); border-radius: 999px; font-size: 0.75rem; transition: background-color 0.15s;
+}
+.chip:hover span { background: color-mix(in srgb, #000 6%, transparent); }
+.chip input:focus-visible + span { outline: 2px solid var(--ink); outline-offset: 2px; }
+.chip input:checked + span { border-color: var(--danger); background: var(--danger); color: #fff; }
+.chip input:checked + span::before { content: '✓ '; }
+
+/* Shape and font pickers (hidden radio buttons, the tile is the control) */
+.shape-picker { display: grid; grid-template-columns: repeat(auto-fill, minmax(4.5rem, 1fr)); gap: 0.5rem; }
+.shape-opt { position: relative; display: block; padding: 0.4rem 0 0.3rem; border: 1px solid transparent; border-radius: 0.5rem; text-align: center; cursor: pointer; }
+.shape-opt input { position: absolute; opacity: 0; pointer-events: none; }
+.shape-swatch { display: block; width: 3rem; height: 3rem; margin: 0 auto 0.2rem; background: color-mix(in srgb, #000 16%, transparent); transition: background-color 0.15s; }
+.shape-opt:hover .shape-swatch { background: color-mix(in srgb, #000 32%, transparent); }
+.shape-opt input:checked + .shape-swatch { background: var(--accent); }
+.shape-opt:has(input:checked) { border-color: var(--accent); }
+.shape-opt input:focus-visible + .shape-swatch { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+.font-picker { display: grid; grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr)); gap: 0.5rem; }
+.font-opt {
+    position: relative; display: block; padding: 0.6rem 0.75rem; background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.12); border-radius: 0.5rem; cursor: pointer;
+    font-size: 1.05rem; font-synthesis: none;
+}
+.font-opt input { position: absolute; opacity: 0; pointer-events: none; }
+.font-opt:hover { border-color: rgba(0, 0, 0, 0.4); }
+.font-opt:has(input:checked) { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, #fff); }
+.font-opt:has(input:focus-visible) { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+
+@media (min-width: 768px) { .pe-tools-foot { bottom: 1rem; } }   /* no bottom tabs on a computer */
+
+/* ----- the live profile ----- */
+.pe-stage {
+    --stage-bg: var(--paper);
+    display: none; flex-direction: column; gap: 1rem; padding: 1rem; overflow: auto;
+    border: 1px solid rgba(0, 0, 0, 0.1); border-radius: 0.75rem;
+    background-color: var(--stage-bg); background-image: var(--stage-img, none);
+    background-size: cover; background-position: center;
+}
+.pe.is-live .pe-stage { display: flex; }
+.pe.is-live[data-mode="edit"] .pe-stage { display: none; }
+.pe-stage .profile-card { flex: 1 0 auto; width: 100%; margin: 0 auto; }
+.pe-live {
+    position: sticky; top: 0; z-index: 6; align-self: flex-start; display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.4rem 0.9rem; border: 1px solid rgba(0, 0, 0, 0.1); border-radius: 999px;
+    background: var(--paper); color: var(--ink); font-size: 0.75rem; font-weight: 700;
+}
+.pe-live i { width: 0.5rem; height: 0.5rem; border-radius: 50%; background: #2e9e5b; animation: pe-pulse 1.6s ease-in-out infinite; }
+@keyframes pe-pulse { 50% { opacity: 0.3; } }
+.pe-stage .p-actions .pill { cursor: default; }
+.pe-stage .block { margin-top: 2rem; }
+
+/* ----- wide screens: tools left, profile right, both always visible ----- */
+@media (min-width: 1200px) {
+    .studio .with-side { padding-right: 2rem; }
+    .container.edit-page { margin-top: 1rem; padding-bottom: 1rem; }
+    .pe-studio {
+        display: grid; grid-template-columns: 25rem minmax(0, 1fr); gap: 1.5rem; align-items: start;
+        max-width: none; margin: 0;
+    }
+    .pe-tools, .pe-stage { position: sticky; top: 1rem; height: calc(100dvh - 2rem); }
+    .pe-tools {
+        display: flex; flex-direction: column; overflow: hidden;
+        border: 1px solid rgba(0, 0, 0, 0.1); border-radius: 0.75rem; background: #fbfafa; color: #000;
+    }
+    .pe-tools-head, .pe-tools-body, .pe-tools-foot {
+        position: static; border: 0; border-radius: 0; background: none;
+        -webkit-backdrop-filter: none; backdrop-filter: none;
+    }
+    .pe-tools-head { padding: 1.5rem 1.75rem 1.1rem; }
+    .pe-tools-body { flex: 1; min-height: 0; padding: 0 1.75rem; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+    .pe-tools-foot { padding: 1rem 1.75rem 1.25rem; border-top: 1px solid rgba(0, 0, 0, 0.08); }
+    .pe-title { font-size: 1.75rem; }
+    .seg { display: none; }
+    .pe.is-live .pe-stage, .pe.is-live[data-mode="edit"] .pe-stage, .pe.is-live[data-mode="preview"] .pe-stage { display: flex; }
+    .pe[data-mode="preview"] .pe-tools-body { display: block; }
+    .pe-stage { padding: 1.25rem; }
+}
+
+/* ---------- A profile's own cursor ----------
+   The page sets --profile-cursor (and has-cursor) when its owner uploaded one. Every element gets it,
+   links and buttons too (they would otherwise show the normal hand). Typing fields keep the text bar. */
+body.has-cursor, body.has-cursor *, .pe-stage.has-cursor, .pe-stage.has-cursor * { cursor: var(--profile-cursor); }
+body.has-cursor :is(textarea, input[type="text"], input[type="search"], input[type="password"]),
+.pe-stage.has-cursor :is(textarea, input[type="text"]) { cursor: text; }
+.pe-note-small { margin: 0.6rem 0 0; font-size: 0.75rem; line-height: 1.35; opacity: 0.6; }
+
+/* ---------- Phone: no page background, the profile is just the card, full screen ---------- */
+@media (max-width: 767px) {
+    .container.profile-page { width: calc(100% + 2rem); max-width: none; margin: 0 -1rem; padding-bottom: 0; }
+    .profile-card { max-width: none; min-height: 100dvh; margin: 0; }
+    .sheet-inner { padding-bottom: 6rem; }   /* room for the bottom tabs */
+}
+
+/* A visitor who is not signed in has no top bar, so the card gets a little room above it instead */
+.page:not(.with-side) .container.profile-page { margin-top: 1rem; }

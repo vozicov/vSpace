@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Delete collection · space{% endblock %}
+{% block container_class %}wide{% endblock %}
+{% block content %}
+    <h2 class="block-title">Delete collection</h2>
+    <div class="panel">
+        <p>Delete <strong>{{ folder.title }}</strong>? Its {{ folder.children.count }} post{{ folder.children.count|pluralize }} leave your shelf, but the posts themselves are not deleted.</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn-danger">Delete collection</button>
+        </form>
+        <p><a class="back" href="{% url 'collection' folder.pk %}">Cancel</a></p>
+    </div>
+{% endblock %}

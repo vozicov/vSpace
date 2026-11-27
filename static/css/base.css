@@ -1,0 +1,472 @@
+/* Look of the whole site, copied from the reference: warm paper, near-black ink, tight
+   leading, bold sans headings, small mono labels, pill buttons, no boxes or shadows.
+   Everything that is a color or a font is a variable here. A profile page re-defines
+   --ink / --accent for its own card (see profile.css). */
+
+:root {
+    --paper: #ffffff;
+    --ink: #080603;
+    --accent: #6d4c41;          /* the reference's brown */
+    --on-accent: #fbf9f9;
+    --danger: #b3261e;
+    /* Titles: Perfektta Bold, then any serif. Everything else: the grotesk (also the default
+       for labels). The DM fonts only stand in until the font files are in static/fonts/. */
+    --serif: 'Perfektta', Georgia, 'Times New Roman', serif;
+    --sans: 'Grotesk', 'DM Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --mono: 'Grotesk', 'DM Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+    --line: color-mix(in srgb, currentColor 14%, transparent);
+    --line-strong: color-mix(in srgb, currentColor 35%, transparent);
+
+    /* Light / dark. Two sets of colors, both with their light values here.
+       --c-*   the sidebars and bottom tabs. They follow the theme on every page, profiles included.
+       the rest are the pages around you (home, explore, tweets, forms...). They follow the theme
+       everywhere except on profile pages, where the owner's own colors rule (see the dark block below). */
+    --c-bg: #fff; --c-fg: #080603; --c-strong: #111827; --c-muted: #4b5563;
+    --c-line: rgba(0, 0, 0, 0.05); --c-edge: rgba(5, 5, 5, 0.125); --c-hover: #f5f5f4; --c-active: #2563eb;
+    --strong: #111827; --faint: #9ca3af;
+    --surface: #fbfafa; --surface-fg: #000;
+    --hair: rgba(0, 0, 0, 0.1); --hair-soft: rgba(0, 0, 0, 0.08);
+    --hair-focus-soft: rgba(0, 0, 0, 0.35); --hair-focus: rgba(0, 0, 0, 0.45);
+    --tint: #000; --shadow: rgba(8, 6, 3, 0.14);
+}
+
+/* ---------- Dark theme ----------
+   <html data-theme="light|dark|system"> is set from the member's Settings (signed-in pages only).
+   "system" is the same as dark, but only while the device itself is in dark mode. Profile pages
+   (body.themed) and the profile editor (body.studio) keep their own colors; only the sidebars
+   and bottom tabs follow the theme there. */
+html[data-theme="dark"] {
+    --c-bg: #161412; --c-fg: #f3ede4; --c-strong: #faf6f0; --c-muted: #b3aa9d;
+    --c-line: rgba(255, 255, 255, 0.09); --c-edge: rgba(255, 255, 255, 0.2); --c-hover: #26221e; --c-active: #8ab4ff;
+}
+html[data-theme="dark"] body:not(.themed):not(.studio):not(.auth) {
+    --paper: #121110; --ink: #f3ede4; --accent: #8b6a5c;
+    --strong: #faf6f0; --faint: #8a8378;
+    --surface: #1c1a17; --surface-fg: #f3ede4;
+    --hair: rgba(255, 255, 255, 0.14); --hair-soft: rgba(255, 255, 255, 0.1);
+    --hair-focus-soft: rgba(255, 255, 255, 0.4); --hair-focus: rgba(255, 255, 255, 0.5);
+    --tint: #fff; --shadow: rgba(0, 0, 0, 0.5);
+    color-scheme: dark;
+}
+html[data-theme="dark"]:has(body:not(.themed):not(.studio):not(.auth)) { color-scheme: dark; }
+@media (prefers-color-scheme: dark) {
+    html[data-theme="system"] {
+        --c-bg: #161412; --c-fg: #f3ede4; --c-strong: #faf6f0; --c-muted: #b3aa9d;
+        --c-line: rgba(255, 255, 255, 0.09); --c-edge: rgba(255, 255, 255, 0.2); --c-hover: #26221e; --c-active: #8ab4ff;
+    }
+    html[data-theme="system"] body:not(.themed):not(.studio):not(.auth) {
+        --paper: #121110; --ink: #f3ede4; --accent: #8b6a5c;
+        --strong: #faf6f0; --faint: #8a8378;
+        --surface: #1c1a17; --surface-fg: #f3ede4;
+        --hair: rgba(255, 255, 255, 0.14); --hair-soft: rgba(255, 255, 255, 0.1);
+        --hair-focus-soft: rgba(255, 255, 255, 0.4); --hair-focus: rgba(255, 255, 255, 0.5);
+        --tint: #fff; --shadow: rgba(0, 0, 0, 0.5);
+        color-scheme: dark;
+    }
+    html[data-theme="system"]:has(body:not(.themed):not(.studio):not(.auth)) { color-scheme: dark; }
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: var(--sans);
+    line-height: 1.25;
+    color: var(--ink);
+    background: var(--page-bg, var(--paper));
+    -webkit-font-smoothing: antialiased;
+}
+/* The page background (a color, or the profile owner's image) is its own fixed layer.
+   `background-attachment: fixed` is ignored by phones, a fixed layer works everywhere. */
+body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: -1;
+    background-color: var(--page-bg, var(--paper));
+    background-image: var(--page-bg-image, none);
+    background-size: cover;
+    background-position: center;
+}
+
+a { color: inherit; text-decoration: none; }
+a:hover { text-decoration: underline; text-underline-offset: 0.2em; }
+img { max-width: 100%; }
+
+/* ---------- Page frame ---------- */
+.page { width: 100%; max-width: 96rem; margin: 0 auto; padding: 0 1rem; }
+
+.site-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 0; }
+.logo { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.01em; }
+.logo:hover { text-decoration: none; }
+    opacity: 1; padding: 0.5rem 1.25rem; border-radius: 999px;
+    background: var(--accent); color: var(--on-accent); font-weight: 500;
+}
+
+.container { width: 100%; max-width: 26rem; margin: 2rem auto 0; padding-bottom: 7rem; }
+.container.wide { max-width: 40rem; }
+.container.feed { max-width: none; margin-top: 0; }
+
+/* Phone: tabs at the bottom. Computer: the same links sit in the header instead. */
+.bottom-nav {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+    height: 3.5rem;
+    display: flex; justify-content: space-around; align-items: center;
+    background: color-mix(in srgb, var(--c-bg) 92%, transparent);
+    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+    border-top: 1px solid color-mix(in srgb, var(--c-fg) 14%, transparent);
+    color: var(--c-fg);
+}
+.bottom-nav a { flex: 1; text-align: center; font-size: 0.75rem; opacity: 0.55; }
+.bottom-nav a:hover { text-decoration: none; opacity: 1; }
+.bottom-nav a.active { opacity: 1; font-weight: 700; }
+.bottom-nav .nav-create {
+    flex: 0 0 auto; opacity: 1;
+    width: 3.25rem; height: 3.25rem; line-height: 3.1rem;
+    margin-top: -1.25rem; border-radius: 50%;
+    background: var(--accent); color: var(--on-accent);
+    font-size: 1.9rem; font-weight: 400;
+    box-shadow: 0 4px 10px rgba(8, 6, 3, 0.25);
+}
+
+@media (min-width: 768px) {
+    .page { padding: 0 2rem; }
+    .bottom-nav { display: none; }
+    .container { padding-bottom: 5rem; }
+}
+
+/* Profile pages: the header floats on the page like a small paper strip,
+   so it stays readable on top of a background picture. */
+.themed .site-header {
+    margin: 0.75rem 0;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--paper) 86%, transparent);
+    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+}
+
+/* Computer: a fixed left sidebar copied from the Rec League layout, and on wide screens a
+   matching right one. Both are the same width, so the page between them is centered on the
+   screen. Phones keep the bottom tabs. */
+.sidebar, .sidebar-right { display: none; }
+/* logged in: no top bar at all (phones use the bottom tabs, computers the sidebars) */
+.with-side .site-header { display: none; }
+@media (min-width: 768px) {
+    :root { --side-w: 18rem; }
+    .with-side { max-width: none; margin: 0; padding: 0 2rem 0 calc(var(--side-w) + 2rem); }
+    .sidebar {
+        display: block; position: fixed; top: 0; bottom: 0; left: 0; z-index: 10;
+        width: var(--side-w); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none;
+        background: var(--c-bg); color: var(--c-fg); border-right: 1px solid var(--c-line);
+    }
+    .sidebar::-webkit-scrollbar { display: none; }
+    /* a column that is at least as tall as the screen, so the Settings button can sit at the very bottom */
+    .sidebar-inner { display: flex; flex-direction: column; min-height: 100%; padding: 2rem 1.25rem; }
+    .side-nav { display: flex; flex-direction: column; flex: 1; gap: 2rem; padding-right: 0.5rem; }
+    .side-brand a { font-size: 2.25rem; line-height: 2.5rem; font-weight: 700; color: var(--c-strong); white-space: nowrap; }
+    .side-brand a:hover { text-decoration: none; }
+
+    .side-create {
+        display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+        margin-bottom: 1rem; padding: 0.9rem 1rem; border: 1px solid var(--c-edge); border-radius: 999px;
+        background: var(--c-bg); color: var(--c-fg); font-size: 1rem; font-weight: 600;
+        transition: background-color 0.15s;
+    }
+    .side-create:hover { text-decoration: none; background: var(--c-hover); }
+    .side-plus { font-size: 1.375rem; line-height: 1; }
+
+    .side-section h3 {
+        margin: 0 0 0.9rem; padding-bottom: 0.6rem; border-bottom: 1px solid var(--c-line);
+        font-size: 0.8125rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--c-muted);
+    }
+    .side-links { display: flex; flex-direction: column; gap: 0.25rem; }
+    .side-links form { display: block; margin: 0; }
+    .side-links a, .side-link-btn {
+        display: flex; align-items: center; gap: 0.9rem; width: 100%;
+        padding: 0.7rem 0.9rem; border: 0; border-radius: 0.5rem; background: none;
+        color: inherit; font: inherit; font-size: 1.0625rem; font-weight: 500; text-align: left; line-height: 1.4rem;
+        cursor: pointer; transition: transform 0.15s;
+    }
+    .side-links a:hover, .side-link-btn:hover { text-decoration: none; transform: translateX(0.25rem); opacity: 1; }
+    .side-links a.active { color: var(--c-active); font-weight: 700; }
+    .side-links svg { flex: none; width: 1.5rem; height: 1.5rem; }
+
+    /* Settings: pinned to the bottom of the sidebar */
+    .side-bottom { margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--c-line); }
+
+    /* "Your page": a card in the owner's own card colors */
+    .side-me {
+        display: flex; align-items: center; gap: 0.9rem; width: 100%; padding: 0.9rem;
+        border: 1px solid transparent; border-radius: 0.75rem;
+        background: var(--me-bg); color: var(--me-fg);
+        transition: opacity 0.15s;
+    }
+    .side-me:hover { text-decoration: none; opacity: 0.9; }
+    .side-avatar { flex: none; width: 2.75rem; height: 2.75rem; border-radius: 50%; object-fit: cover; }
+    .side-avatar-empty { display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.12); font-size: 1rem; font-weight: 700; }
+    .side-me-text { display: flex; flex-direction: column; min-width: 0; }
+    .side-me-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.9375rem; font-weight: 700; }
+    .side-me-handle { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.8125rem; opacity: 0.7; }
+}
+
+/* Wide screens: the right sidebar (who you follow) appears. Same width as the left one, no
+   background, no border, no shadow: the page background shows behind it. */
+@media (min-width: 1280px) {
+    .with-side { padding: 0 calc(var(--side-w) + 1.5rem); }
+    .sidebar-right {
+        display: block; position: fixed; top: 0; bottom: 0; right: 0; z-index: 10;
+        width: var(--side-w); padding: 2rem 1.5rem; overflow-y: auto; scrollbar-width: none;
+        background: transparent; color: var(--ink); border: 0; box-shadow: none;
+    }
+    .sidebar-right::-webkit-scrollbar { display: none; }
+    .sidebar-right h3 { margin: 0 0 1.25rem; font-size: 1.375rem; font-weight: 600; color: var(--strong); }
+    .follow-pills { display: flex; flex-wrap: wrap; gap: 0.625rem; }
+    .follow-pill {
+        display: flex; align-items: center; gap: 0.6rem; padding: 0.35rem 0.85rem 0.35rem 0.35rem;
+        border: 1px solid color-mix(in srgb, var(--pill-fg) 14%, transparent); border-radius: 999px;
+        background: var(--pill-bg); color: var(--pill-fg); font-size: 0.9375rem; font-weight: 500;
+        transition: opacity 0.15s;
+    }
+    .follow-pill:hover { text-decoration: none; opacity: 0.8; }
+    .pill-avatar { flex: none; width: 2rem; height: 2rem; border-radius: 50%; object-fit: cover; }
+    .pill-avatar-empty { display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.12); font-size: 0.8rem; font-weight: 700; }
+    .pill-name { max-width: 7rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .side-empty { margin: 0; font-size: 1rem; color: var(--faint); }
+}
+
+/* ---------- Type ---------- */
+h1, h2, h3 { margin: 0; font-family: var(--serif); font-weight: 700; }
+/* the wordmark, post titles and collection names are titles too */
+.logo, .side-brand a, .rec-title, .tile-name a { font-family: var(--serif); }
+/* small uppercase section labels in the sidebar are labels, not titles */
+.side-section h3 { font-family: var(--sans); }
+.block-title { margin: 0 0 1.5rem; font-size: 1.125rem; }
+@media (min-width: 768px) { .block-title { font-size: 1.5rem; } }
+.muted { opacity: 0.6; }
+.small { font-size: 0.75rem; }
+.note { grid-column: 1 / -1; margin: 0 0 1.5rem; font-size: 0.875rem; opacity: 0.7; }
+.back { font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; }
+
+/* ---------- Forms ---------- */
+.form-group { margin-bottom: 1rem; }
+label { display: block; margin-bottom: 0.4rem; font-size: 0.75rem; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.03em; opacity: 0.75; }
+
+input[type="text"], input[type="password"], input[type="file"], input[type="url"],
+input[type="number"], textarea, select {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 0.5rem;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: 0.875rem;
+}
+textarea { resize: vertical; margin-bottom: 0.5rem; }
+select option { color: var(--surface-fg); background: var(--surface); }
+input:focus, textarea:focus, select:focus { outline: 2px solid var(--ink); outline-offset: 1px; }
+input[type="color"] {
+    width: 3rem; height: 2.25rem; padding: 0;
+    border: 1px solid var(--line-strong); border-radius: 0.5rem; background: none; cursor: pointer;
+}
+
+.panel { max-width: 40rem; margin: 0 0 1.5rem; padding: 1.25rem; border: 1px solid var(--line); border-radius: 1rem; }
+.errorlist { margin: 0.25rem 0 0.5rem; padding-left: 1.25rem; color: var(--danger); font-size: 0.8rem; }
+.alert-error {
+    margin: 0 0 1rem; padding: 0.75rem 1rem; border: 1px solid var(--danger); border-radius: 0.5rem;
+    color: var(--danger); font-size: 0.875rem;
+}
+.help { margin: 0.25rem 0 0; font-size: 0.75rem; opacity: 0.65; }
+
+/* ---------- Buttons: pills ---------- */
+button {
+    padding: 0.55rem 1.5rem;
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--on-accent);
+    font: inherit; font-size: 0.8125rem; font-weight: 500;
+    cursor: pointer;
+}
+button:hover { opacity: 0.9; }
+.panel > form > button[type="submit"], .container:not(.feed):not(.wide) > form > button[type="submit"] { width: 100%; }
+
+.pill, .btn-link {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 0.4rem 1.25rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: transparent; color: inherit;
+    font-size: 0.75rem; font-weight: 400;
+}
+.pill:hover, .btn-link:hover { opacity: 0.8; text-decoration: none; }
+.pill.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+a.pill.primary { color: var(--on-accent); }
+button.pill:not(.primary) { background: transparent; color: inherit; }
+@media (min-width: 768px) { .pill { padding: 0.5rem 1.5rem; font-size: 0.875rem; } }
+
+.btn-inline { padding: 0.375rem 0.9rem; }
+.btn-danger { background: var(--danger); border-color: var(--danger); color: #fff; }
+.inline-form { display: inline; margin: 0; }
+
+/* A button that looks like plain text (menus, small controls) */
+.linkbtn, .stat {
+    width: auto; padding: 0; border: 0; border-radius: 0;
+    background: none; color: inherit; font: inherit; text-align: left;
+}
+.linkbtn:hover, .stat:hover { opacity: 1; }
+
+/* ---------- Pictures ---------- */
+.avatar { width: 2.25rem; height: 2.25rem; object-fit: cover; flex-shrink: 0; }
+.avatar.lg { width: 5rem; height: 5rem; font-size: 2rem; }
+.avatar-empty {
+    display: inline-flex; align-items: center; justify-content: center;
+    background: color-mix(in srgb, currentColor 12%, transparent); font-weight: 700;
+}
+
+/* Picture shapes: each is an SVG mask (rounded corners are baked into the SVG) */
+.avatar, .shape-swatch {
+    -webkit-mask-size: 100% 100%;  mask-size: 100% 100%;
+    -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+    -webkit-mask-position: center;  mask-position: center;
+}
+.shape-circle   { border-radius: 50%; }
+.shape-squircle { -webkit-mask-image: url('../img/masks/squircle.svg'); mask-image: url('../img/masks/squircle.svg'); }
+.shape-square   { -webkit-mask-image: url('../img/masks/square.svg');   mask-image: url('../img/masks/square.svg'); }
+.shape-triangle { -webkit-mask-image: url('../img/masks/triangle.svg'); mask-image: url('../img/masks/triangle.svg'); }
+.shape-diamond  { -webkit-mask-image: url('../img/masks/diamond.svg');  mask-image: url('../img/masks/diamond.svg'); }
+.shape-pentagon { -webkit-mask-image: url('../img/masks/pentagon.svg'); mask-image: url('../img/masks/pentagon.svg'); }
+.shape-hexagon  { -webkit-mask-image: url('../img/masks/hexagon.svg');  mask-image: url('../img/masks/hexagon.svg'); }
+.shape-octagon  { -webkit-mask-image: url('../img/masks/octagon.svg');  mask-image: url('../img/masks/octagon.svg'); }
+.shape-star     { -webkit-mask-image: url('../img/masks/star.svg');     mask-image: url('../img/masks/star.svg'); }
+.shape-heart    { -webkit-mask-image: url('../img/masks/heart.svg');    mask-image: url('../img/masks/heart.svg'); }
+.shape-flower   { -webkit-mask-image: url('../img/masks/flower.svg');   mask-image: url('../img/masks/flower.svg'); }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+
+/* ---------- Log in and Join ----------
+   One centered card on the paper, with a field of the profile shapes behind it.
+   The same card look as the composer and the edit page: soft border, 0.75rem corners, pill button. */
+.auth .site-header { display: none; }
+.auth .page { max-width: none; }
+.container.auth-wrap {
+    position: relative; display: flex; align-items: center; justify-content: center;
+    max-width: none; min-height: 100dvh; margin: 0; padding: 2rem 0;
+}
+.auth-card {
+    position: relative; z-index: 1; width: 100%; max-width: 26rem; padding: 2rem 1.5rem 1.5rem;
+    border: 1px solid rgba(0, 0, 0, 0.1); border-radius: 0.75rem; background: #fbfafa; color: #000;
+}
+.auth-brand { display: inline-block; margin-bottom: 1.5rem; font-size: 2.25rem; line-height: 1; font-weight: 700; letter-spacing: -0.01em; color: #111827; }
+.auth-brand:hover { text-decoration: none; }
+.auth-title { margin: 0 0 0.4rem; font-size: 1.75rem; }
+.auth-sub { margin: 0 0 1.5rem; font-size: 0.875rem; line-height: 1.4; opacity: 0.7; }
+.auth-field { margin-bottom: 1.1rem; }
+.auth-field .errorlist { padding-left: 0; list-style: none; }
+.auth-card .help { margin-top: 0.4rem; }
+.auth-rules ul { margin: 0; padding-left: 1.1rem; }
+.auth-rules li { margin-bottom: 0.15rem; }
+.auth-rule { height: 1px; margin: 1.5rem 0; background: rgba(0, 0, 0, 0.08); }
+
+/* the referral code field: the gate, so it is bigger than the rest */
+.auth-card .code-input {
+    padding: 0.8rem 1rem; font-family: var(--mono); font-size: 1.25rem; letter-spacing: 0.14em;
+    text-align: center; text-transform: uppercase;
+}
+.auth-card .code-input::placeholder { opacity: 0.35; letter-spacing: 0.14em; }
+
+.auth-submit { width: 100%; margin-top: 0.4rem; padding: 0.8rem 1.5rem; font-size: 0.9375rem; }
+.auth-submit:disabled { opacity: 0.55; cursor: not-allowed; }
+.auth-switch { margin: 1.5rem 0 0; padding-top: 1.25rem; border-top: 1px solid rgba(0, 0, 0, 0.08); font-size: 0.8125rem; text-align: center; }
+.auth-switch a { font-weight: 700; text-decoration: underline; text-underline-offset: 0.2em; }
+.auth-card .alert-error { margin-bottom: 1.25rem; }
+
+/* the background: a field of all 11 profile shapes, fixed behind the card */
+.auth-shapes { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.auth-shape {
+    --u: clamp(3.5rem, 11vmin, 9rem);
+    position: absolute; width: calc(var(--u) * var(--k, 1)); height: calc(var(--u) * var(--k, 1));
+    transform: translate(-50%, -50%) rotate(var(--r, 0deg));
+    background: color-mix(in srgb, var(--accent) 16%, transparent);
+    -webkit-mask-size: 100% 100%; mask-size: 100% 100%;
+    -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+    -webkit-mask-position: center; mask-position: center;
+}
+.auth-shape:nth-child(4n+2) { background: #e7dccb; }
+.auth-shape:nth-child(4n+3) { background: #d9e4d3; }
+.auth-shape:nth-child(4n)   { background: color-mix(in srgb, var(--accent) 30%, var(--paper)); }
+@media (prefers-reduced-motion: no-preference) {
+    .auth-shape { animation: auth-float 7s ease-in-out infinite alternate; }
+}
+@keyframes auth-float { to { translate: 0 -1rem; } }
+.auth-shape:nth-child(1) { left: 6.6%; top: 10.9%; --k: 1.39; --r: 27deg; animation-duration: 6.8s; animation-delay: -6.8s; }
+.auth-shape:nth-child(2) { left: 18.1%; top: 14.6%; --k: 1.06; --r: -9deg; animation-duration: 5.4s; animation-delay: -2.4s; }
+.auth-shape:nth-child(3) { left: 31.3%; top: 14.7%; --k: 1.22; --r: -27deg; animation-duration: 7.4s; animation-delay: -3.2s; }
+.auth-shape:nth-child(4) { left: 49.5%; top: 13.6%; --k: 1.19; --r: -31deg; animation-duration: 8.3s; animation-delay: -0.5s; }
+.auth-shape:nth-child(5) { left: 59.2%; top: 15.8%; --k: 1.15; --r: 27deg; animation-duration: 6.3s; animation-delay: -4.7s; }
+.auth-shape:nth-child(6) { left: 75.3%; top: 6.0%; --k: 0.92; --r: -32deg; animation-duration: 7.6s; animation-delay: -3.7s; }
+.auth-shape:nth-child(7) { left: 90.4%; top: 17.6%; --k: 1.45; --r: -22deg; animation-duration: 7.8s; animation-delay: -2.5s; }
+.auth-shape:nth-child(8) { left: 4.2%; top: 26.8%; --k: 0.75; --r: -19deg; animation-duration: 6.6s; animation-delay: -6.8s; }
+.auth-shape:nth-child(9) { left: 20.2%; top: 37.0%; --k: 1.34; --r: -32deg; animation-duration: 5.9s; animation-delay: -7.4s; }
+.auth-shape:nth-child(10) { left: 30.9%; top: 28.1%; --k: 1.23; --r: 21deg; animation-duration: 5.3s; animation-delay: -5.0s; }
+.auth-shape:nth-child(11) { left: 53.0%; top: 26.5%; --k: 0.77; --r: 10deg; animation-duration: 5.1s; animation-delay: -3.3s; }
+.auth-shape:nth-child(12) { left: 68.9%; top: 24.4%; --k: 1.23; --r: -31deg; animation-duration: 5.2s; animation-delay: -6.4s; }
+.auth-shape:nth-child(13) { left: 75.1%; top: 30.9%; --k: 1.04; --r: -8deg; animation-duration: 8.9s; animation-delay: -6.2s; }
+.auth-shape:nth-child(14) { left: 92.0%; top: 28.2%; --k: 1.00; --r: -5deg; animation-duration: 5.0s; animation-delay: -6.9s; }
+.auth-shape:nth-child(15) { left: 12.3%; top: 51.4%; --k: 1.45; --r: -30deg; animation-duration: 5.8s; animation-delay: -3.2s; }
+.auth-shape:nth-child(16) { left: 25.3%; top: 52.2%; --k: 0.78; --r: -14deg; animation-duration: 5.9s; animation-delay: -2.1s; }
+.auth-shape:nth-child(17) { left: 38.7%; top: 47.4%; --k: 0.92; --r: -23deg; animation-duration: 5.3s; animation-delay: -1.7s; }
+.auth-shape:nth-child(18) { left: 51.5%; top: 42.6%; --k: 0.98; --r: 26deg; animation-duration: 5.5s; animation-delay: -4.7s; }
+.auth-shape:nth-child(19) { left: 67.9%; top: 44.5%; --k: 0.99; --r: -13deg; animation-duration: 6.2s; animation-delay: -1.8s; }
+.auth-shape:nth-child(20) { left: 79.8%; top: 53.4%; --k: 0.82; --r: -7deg; animation-duration: 7.7s; animation-delay: -3.1s; }
+.auth-shape:nth-child(21) { left: 92.7%; top: 43.6%; --k: 0.74; --r: -19deg; animation-duration: 5.2s; animation-delay: -7.7s; }
+.auth-shape:nth-child(22) { left: 4.3%; top: 73.1%; --k: 0.89; --r: 30deg; animation-duration: 6.2s; animation-delay: -1.4s; }
+.auth-shape:nth-child(23) { left: 23.8%; top: 63.4%; --k: 0.87; --r: -23deg; animation-duration: 6.1s; animation-delay: -7.3s; }
+.auth-shape:nth-child(24) { left: 32.5%; top: 62.7%; --k: 0.90; --r: 25deg; animation-duration: 6.0s; animation-delay: -0.4s; }
+.auth-shape:nth-child(25) { left: 47.6%; top: 70.5%; --k: 1.43; --r: -21deg; animation-duration: 6.4s; animation-delay: -7.1s; }
+.auth-shape:nth-child(26) { left: 69.5%; top: 72.4%; --k: 1.22; --r: -15deg; animation-duration: 7.4s; animation-delay: -7.4s; }
+.auth-shape:nth-child(27) { left: 78.3%; top: 67.8%; --k: 0.93; --r: -28deg; animation-duration: 5.1s; animation-delay: -5.1s; }
+.auth-shape:nth-child(28) { left: 92.7%; top: 73.5%; --k: 0.94; --r: -23deg; animation-duration: 5.3s; animation-delay: -4.4s; }
+.auth-shape:nth-child(29) { left: 9.7%; top: 96.1%; --k: 1.25; --r: -16deg; animation-duration: 8.2s; animation-delay: -7.3s; }
+.auth-shape:nth-child(30) { left: 19.8%; top: 92.8%; --k: 1.38; --r: 21deg; animation-duration: 8.8s; animation-delay: -0.2s; }
+.auth-shape:nth-child(31) { left: 35.7%; top: 82.6%; --k: 1.20; --r: 16deg; animation-duration: 7.3s; animation-delay: -4.9s; }
+.auth-shape:nth-child(32) { left: 45.4%; top: 92.1%; --k: 1.44; --r: 21deg; animation-duration: 7.9s; animation-delay: -3.1s; }
+.auth-shape:nth-child(33) { left: 66.8%; top: 91.2%; --k: 1.03; --r: -22deg; animation-duration: 7.1s; animation-delay: -4.1s; }
+.auth-shape:nth-child(34) { left: 76.5%; top: 83.7%; --k: 0.72; --r: -18deg; animation-duration: 7.0s; animation-delay: -4.9s; }
+.auth-shape:nth-child(35) { left: 97.4%; top: 86.3%; --k: 0.71; --r: 6deg; animation-duration: 5.6s; animation-delay: -4.9s; }
+@media (max-width: 767px) { .auth-shape:nth-child(3n) { display: none; } }   /* fewer on a phone */
+
+@media (min-width: 768px) {
+    .auth-card { padding: 2.5rem 2.25rem 2rem; }
+}
+
+/* ---------- Settings page ---------- */
+.set-panel { max-width: 40rem; }
+.set-title { margin: 0 0 0.25rem; font-size: 1.125rem; font-weight: 600; }
+.set-lead { margin: 0 0 1.25rem; font-size: 0.875rem; opacity: 0.7; }
+.set-row { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.75rem 0; }
+.set-row input[type="checkbox"] { flex: none; width: 1.25rem; height: 1.25rem; margin: 0.1rem 0 0; accent-color: var(--accent); }
+.set-row label { display: flex; flex-direction: column; gap: 0.2rem; cursor: pointer; }
+.set-row .small { opacity: 0.65; }
+.set-sub { margin: 0 0 1rem 2rem; padding-left: 1rem; border-left: 1px solid var(--line); transition: opacity 0.15s; }
+.set-sub-note { margin: 0.5rem 0 0; opacity: 0.65; }
+/* While the profile is not public the two switches below it do nothing, so they fade out */
+.set-group:has(input[name="is_public"]:not(:checked)) .set-sub { opacity: 0.4; }
+.set-saved { margin-bottom: 1rem; }
+.set-rule { height: 1px; margin: 1.75rem 0; border: 0; background: var(--line); }
+.set-themes { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.25rem; }
+/* each theme is a pill; the real radio button is hidden but stays keyboard friendly */
+.set-theme { position: relative; margin: 0; font-family: var(--sans); font-size: 0.875rem; text-transform: none; letter-spacing: 0; opacity: 1; cursor: pointer; }
+.set-theme input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.set-theme span { display: block; padding: 0.45rem 1.1rem; border: 1px solid var(--line-strong); border-radius: 999px; }
+.set-theme:hover span { background: color-mix(in srgb, currentColor 6%, transparent); }
+.set-theme input:checked + span { border-color: var(--accent); background: var(--accent); color: var(--on-accent); }
+.set-theme input:focus-visible + span { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+/* The unread count next to Notifications (sidebar) and Alerts (phone tabs) */
+.badge {
+    display: inline-flex; align-items: center; justify-content: center; min-width: 1.25rem; height: 1.25rem; padding: 0 0.4rem;
+    border-radius: 999px; background: var(--danger); color: #fff; font-size: 0.6875rem; font-weight: 700; line-height: 1;
+}
+.side-links .badge { margin-left: auto; }
+.bottom-nav .nav-alerts { position: relative; }
+.bottom-nav .nav-alerts .badge { position: absolute; top: -0.35rem; left: calc(50% + 0.6rem); min-width: 1rem; height: 1rem; padding: 0 0.3rem; font-size: 0.625rem; }

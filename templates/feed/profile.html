@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}@{{ profile_user.username }} · space{% endblock %}
+{% block container_class %}feed profile-page{% endblock %}
+{% block body_attrs %}class="themed{% if profile_user.profile.cursor %} has-cursor{% endif %}" style="--page-bg: {{ profile_user.profile.background_color }};{% if profile_user.profile.background_image %} --page-bg-image: url('{{ profile_user.profile.background_image.url }}');{% endif %}{% if profile_user.profile.cursor and not profile_user.profile.cursor_steps %} --profile-cursor: url('{{ profile_user.profile.cursor.url }}') 0 0, auto;{% endif %}"{% if profile_user.profile.cursor and profile_user.profile.cursor_steps %} data-cursor-src="{{ profile_user.profile.cursor.url }}" data-cursor-frames="{{ profile_user.profile.cursor_frames }}" data-cursor-steps="{{ profile_user.profile.cursor_steps_json }}"{% endif %}{% endblock %}
+{% block site_header %}{% if user.is_authenticated %}{{ block.super }}{% endif %}{% endblock %}
+{% block content %}
+{% with prof=profile_user.profile %}
+<div class="profile-card font-{{ prof.font }}" style="--card-bg: {{ prof.card_color }}; --card-fg: {{ prof.card_text_color }};">
+    {% if prof.banner %}<div class="sheet-banner"><img src="{{ prof.banner.url }}" alt=""></div>{% endif %}
+
+    <div class="sheet-inner">
+        <header class="p-head" id="pins">
+            <div class="p-avatar">
+                <div class="pins pins-left">
+                    {% for pin in pin_slots|slice:":2" %}
+                        {% if pin %}{% include 'shelf/_pin.html' %}
+                        {% elif is_owner %}<a class="pin pin-empty slot-{{ forloop.counter }}" href="#pin-picker" title="Pin one of your posts">+</a>{% endif %}
+                    {% endfor %}
+                </div>
+                <div class="pfp-wrap">{% include 'feed/_avatar.html' with p=prof size='xl' %}</div>
+                <div class="pins pins-right">
+                    {% for pin in pin_slots|slice:"2:" %}
+                        {% if pin %}{% include 'shelf/_pin.html' %}
+                        {% elif is_owner %}<a class="pin pin-empty slot-{{ forloop.counter|add:2 }}" href="#pin-picker" title="Pin one of your posts">+</a>{% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% if is_owner %}{% include 'shelf/_pin_picker.html' %}{% endif %}
+
+            <div class="p-info">
+                <h1 class="p-name">{{ prof.name }}</h1>
+                <p class="p-handle">@{{ profile_user.username }}</p>
+                {% if prof.bio %}<p class="p-bio">{{ prof.bio }}</p>{% endif %}
+                <p class="p-stats">{{ followers_count }} follower{{ followers_count|pluralize }} &middot; {{ following_count }} following &middot; {{ collections|length }} collection{{ collections|length|pluralize }}</p>
+                <div class="p-actions">
+                    {% if is_owner %}
+                        <a class="pill primary" href="{% url 'profile_edit' %}">Edit profile</a>
+                        <a class="pill" href="{% url 'settings' %}">Settings</a>
+                        <form class="inline-form" method="post" action="{% url 'logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="pill">Log out</button>
+                        </form>
+                    {% elif not user.is_authenticated %}
+                        <a class="pill primary" href="{% url 'login' %}?next={{ request.path|urlencode }}">Log in to follow</a>
+                    {% else %}
+                        <form class="inline-form" method="post" action="{% url 'follow_toggle' profile_user.username %}">
+                            {% csrf_token %}
+                            <button type="submit" class="pill {% if not is_following %}primary{% endif %}">{% if is_following %}Following{% else %}Follow{% endif %}</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </header>
+
+        {% if collections or is_owner %}
+        <section class="block" id="collections">
+            <div class="block-head">
+                <h2>Collections</h2>
+                {% if can_add_collection %}<a class="block-link" href="{% url 'collection_create' %}">+ New collection</a>{% endif %}
+            </div>
+            <div class="carousel">
+                {% for collection in collections %}
+                    {% if is_owner or collection.children.all %}
+                    <div class="tile">
+                        <a class="tile-art" href="{% url 'collection' collection.pk %}">{% include 'shelf/_cover.html' %}</a>
+                        <div class="tile-name">
+                            <a href="{% url 'collection' collection.pk %}">{{ collection.title }}</a>
+                            <span>{{ collection.children.all|length }} post{{ collection.children.all|length|pluralize }}</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+                {% if is_owner %}
+                    <a class="tile tile-new" href="{% url 'collection_create' %}"><span>+</span><small>New collection</small></a>
+                {% endif %}
+            </div>
+        </section>
+        {% endif %}
+
+        <section class="block" id="posts">
+            <div class="block-head block-head-filters">
+                <nav class="filters" aria-label="Filter">
+                    {% if show_posts and show_tweets %}<a href="?kind=all#posts" class="{% if kind == 'all' %}active{% endif %}">All</a>{% endif %}
+                    {% if show_posts %}<a href="?kind=post#posts" class="{% if kind == 'post' %}active{% endif %}">Posts</a>{% endif %}
+                    {% if show_tweets %}<a href="?kind=tweet#posts" class="{% if kind == 'tweet' %}active{% endif %}">Tweets</a>{% endif %}
+                </nav>
+            </div>
+            <div class="post-feed">
+                {% for entry in page_obj %}
+                    {% include 'feed/_entry.html' %}
+                {% empty %}
+                    <p class="note">{% if not show_posts and not show_tweets %}This person keeps their posts and tweets for members only. <a href="{% url 'login' %}?next={{ request.path|urlencode }}">Log in</a> to see them.{% else %}Nothing here yet.{% endif %}</p>
+                {% endfor %}
+            </div>
+            {% include 'feed/_pager.html' %}
+        </section>
+    </div>
+</div>
+{% endwith %}
+{% endblock %}

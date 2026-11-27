@@ -1,0 +1,20 @@
+{% comment %}
+A themed file picker: a tile with a thumbnail, a title and a "Choose" pill. The real file input
+sits invisibly in front of it, so the keyboard and the label still open the file dialog.
+Needs: field, key, title, hint, max_mb, url (current file or empty); optional: wide.
+{% endcomment %}
+<div class="upload-field" data-upload-field="{{ key }}">
+    {{ field.errors }}
+    {{ field }}
+    <label class="upload-tile" for="{{ field.id_for_label }}">
+        <span class="upload-thumb{% if wide %} wide{% endif %}">
+            <img alt="" data-thumb{% if url %} src="{{ url }}"{% else %} hidden{% endif %}>
+            <span class="upload-plus" data-plus{% if url %} hidden{% endif %}>+</span>
+        </span>
+        <span class="upload-text">
+            <strong>{{ title }}</strong>
+            <small data-filename data-hint="{{ hint }} · up to {{ max_mb }} MB">{{ hint }} · up to {{ max_mb }} MB</small>
+        </span>
+        <span class="upload-pick" data-pick>{% if url %}Change{% else %}Choose{% endif %}</span>
+    </label>
+</div>

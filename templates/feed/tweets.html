@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Tweets · space{% endblock %}
+{% block container_class %}home-page{% endblock %}
+{% block content %}
+    <div class="home-head"><h2>Tweets</h2></div>
+
+    <form class="composer" method="post" data-once>
+        {% csrf_token %}
+        {{ form.submit_token }}
+        {% include 'feed/_composer_head.html' %}
+
+        <div class="composer-body">
+            {{ form.non_field_errors }}
+            {{ form.submit_token.errors }}
+            {{ form.body.errors }}
+            {{ form.body }}
+        </div>
+
+        <footer class="composer-foot">
+            <span class="composer-count" data-count>280 characters max</span>
+            <button type="submit" data-submit data-busy="Tweeting…">Tweet</button>
+        </footer>
+    </form>
+    <script src="{% static 'js/upload.js' %}" defer></script>
+
+    {% for entry in page_obj %}
+        {% include 'feed/_entry.html' %}
+    {% empty %}
+        <p class="note">No tweets yet. Be the first!</p>
+    {% endfor %}
+    {% include 'feed/_pager.html' %}
+{% endblock %}

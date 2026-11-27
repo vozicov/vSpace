@@ -1,0 +1,57 @@
+<article class="entry">
+    <div class="entry-header">
+        {% include 'feed/_avatar.html' with p=entry.author.profile %}
+        <div class="entry-who">
+            <a href="{% url 'profile' entry.author.username %}"><strong>{{ entry.author.profile.name }}</strong></a>
+            <span class="small">@{{ entry.author.username }}</span>
+        </div>
+        <a class="entry-time" href="{{ entry.get_absolute_url }}">{{ entry.created_at|date:"j M" }}</a>
+    </div>
+
+    {% if entry.parent %}
+        <div class="reply-to">Replying to
+            <a href="{{ entry.parent.get_absolute_url }}">@{{ entry.parent.author.username }}</a>
+        </div>
+    {% endif %}
+
+    {% if entry.media %}
+        {% if entry.media_type == 'video' %}
+            <video class="entry-media" src="{{ entry.media.url }}" controls preload="metadata"{% if entry.thumbnail %} poster="{{ entry.thumbnail.url }}"{% endif %}></video>
+        {% else %}
+            <img class="entry-media" src="{{ entry.media.url }}" alt="" loading="lazy">
+        {% endif %}
+    {% endif %}
+
+    {% if entry.kind == 'post' %}
+        <h3>{% if full %}{{ entry.title }}{% else %}<a href="{{ entry.get_absolute_url }}">{{ entry.title }}</a>{% endif %}</h3>
+    {% endif %}
+    {% if full %}
+        {{ entry.body|linebreaks }}
+    {% elif entry.kind == 'post' %}
+        <p>{{ entry.body|truncatewords:40 }}</p>
+    {% else %}
+        <p>{{ entry.body|linebreaksbr }}</p>
+    {% endif %}
+
+    {% include 'feed/_music.html' %}
+
+    <div class="entry-actions">
+        {% include 'feed/_stats.html' %}
+        {% if entry.kind == 'post' and user.is_authenticated %}
+            <form class="inline-form" method="post" action="{% url 'shelf_toggle_post' entry.pk %}">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                <button type="submit" class="shelf-act {% if entry.on_shelf_by_me %}on{% endif %}">{% if entry.on_shelf_by_me %}On shelf &#10003;{% else %}Add to shelf{% endif %}</button>
+            </form>
+            <form class="inline-form" method="post" action="{% url 'pin_toggle' entry.pk %}">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                <button type="submit" class="shelf-act {% if entry.pinned_by_me %}on{% endif %}">{% if entry.pinned_by_me %}Pinned &#10003;{% else %}Pin to profile{% endif %}</button>
+            </form>
+        {% endif %}
+        {% if entry.author_id == request.user.id %}
+            <a class="shelf-act" href="{% url 'entry_edit' entry.pk %}">Edit</a>
+            <a class="shelf-act" href="{% url 'entry_delete' entry.pk %}">Delete</a>
+        {% endif %}
+    </div>
+</article>

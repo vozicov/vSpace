@@ -1,0 +1,24 @@
+{% comment %}Popup opened by the + next to the picture (pure CSS, shows when the URL is #pin-picker).
+Lists the owner's own posts that have a picture. Needs `pickable`.{% endcomment %}
+<div class="folder-sheet" id="pin-picker">
+    <a class="folder-backdrop" href="#pins" aria-label="Close"></a>
+    <div class="folder-panel">
+        <h3 class="folder-title">Pin a post to your profile</h3>
+        {% if pickable %}
+            <form method="post" action="{% url 'pin_set' %}">
+                {% csrf_token %}
+                <input type="hidden" name="slot" value="" id="pin-slot">
+                <div class="picker-grid">
+                    {% for post in pickable %}
+                        <button type="submit" name="entry" value="{{ post.pk }}" class="picker-item" title="{{ post.title }}">
+                            <img src="{{ post.preview_url }}" alt="{{ post.title }}" loading="lazy" referrerpolicy="no-referrer">
+                        </button>
+                    {% endfor %}
+                </div>
+            </form>
+        {% else %}
+            <p class="muted">You have no posts with a picture to pin. <a href="{% url 'post_create' %}">Create one</a></p>
+        {% endif %}
+        <a class="folder-close" href="#pins">Cancel</a>
+    </div>
+</div>

@@ -1,0 +1,54 @@
+{% comment %}The three result lists. Used by the drawer and by the full results page.{% endcomment %}
+{% if too_short %}
+    <p class="drawer-hint">Keep typing: at least 2 letters.</p>
+{% elif not has_any %}
+    <p class="drawer-hint">Nothing found for &ldquo;{{ q }}&rdquo;.</p>
+{% else %}
+    {% if results.profiles %}
+    <section class="sr-sec">
+        <h4>Profiles</h4>
+        {% for p in results.profiles %}
+            <a class="sr-item" href="{% url 'profile' p.user.username %}">
+                {% include 'feed/_avatar.html' with p=p %}
+                <span class="sr-main">
+                    <span class="sr-title">{{ p.name_html }}</span>
+                    <span class="sr-meta">@{{ p.username_html }}</span>
+                    {% if p.bio_html %}<span class="sr-text">{{ p.bio_html }}</span>{% endif %}
+                </span>
+            </a>
+        {% endfor %}
+    </section>
+    {% endif %}
+
+    {% if results.posts %}
+    <section class="sr-sec">
+        <h4>Posts</h4>
+        {% for e in results.posts %}
+            <a class="sr-item" href="{{ e.get_absolute_url }}">
+                {% if e.preview_url %}<img class="sr-thumb" src="{{ e.preview_url }}" alt="" loading="lazy" referrerpolicy="no-referrer">
+                {% else %}{% include 'feed/_avatar.html' with p=e.author.profile %}{% endif %}
+                <span class="sr-main">
+                    <span class="sr-title">{{ e.title_html }}</span>
+                    <span class="sr-text">{{ e.snippet_html }}</span>
+                    <span class="sr-meta">@{{ e.author.username }} &middot; {{ e.created_at|timesince }} ago</span>
+                </span>
+            </a>
+        {% endfor %}
+    </section>
+    {% endif %}
+
+    {% if results.tweets %}
+    <section class="sr-sec">
+        <h4>Tweets</h4>
+        {% for e in results.tweets %}
+            <a class="sr-item" href="{{ e.get_absolute_url }}">
+                {% include 'feed/_avatar.html' with p=e.author.profile %}
+                <span class="sr-main">
+                    <span class="sr-text sr-tweet">{{ e.snippet_html }}</span>
+                    <span class="sr-meta">@{{ e.author.username }} &middot; {{ e.created_at|timesince }} ago{% if e.parent_id %} &middot; reply{% endif %}</span>
+                </span>
+            </a>
+        {% endfor %}
+    </section>
+    {% endif %}
+{% endif %}

@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Edit profile · space{% endblock %}
+{% block body_attrs %}class="studio"{% endblock %}
+{% block container_class %}feed edit-page{% endblock %}
+{% block content %}
+<div class="pe" data-mode="edit"
+     data-username="{{ request.user.username }}"
+     data-avatar="{{ urls.avatar }}"
+     data-banner="{{ urls.banner }}"
+     data-bgimage="{{ urls.background }}"
+     data-cursor="{{ urls.cursor }}"
+     data-cursor-frames="{{ saved.cursor_frames }}" data-cursor-steps="{{ saved.cursor_steps_json }}">
+
+<form class="pe-form" method="post" enctype="multipart/form-data" data-once data-upload>
+    {% csrf_token %}
+
+    <div class="pe-studio">
+
+        {# ================= TOOLS (left) ================= #}
+        <aside class="pe-tools">
+            <header class="pe-tools-head">
+                <h2 class="pe-title">Edit profile</h2>
+                <p class="pe-sub">Changes appear on your page live. Nothing is saved until you publish.</p>
+                <div class="seg" role="group" aria-label="View" data-seg hidden>
+                    <button type="button" class="seg-btn on" data-mode-btn="edit" aria-pressed="true">Tools</button>
+                    <button type="button" class="seg-btn" data-mode-btn="preview" aria-pressed="false">Preview</button>
+                </div>
+            </header>
+
+            <div class="pe-tools-body">
+                {{ form.non_field_errors }}
+
+                <details class="pe-sec" open>
+                    <summary>Picture</summary>
+                    <div class="pe-sec-body">
+                        <div class="pe-field">
+                            {% include 'accounts/_upload_field.html' with field=form.avatar key='avatar' title='Profile picture' hint='JPG, PNG, WebP or GIF' max_mb=limits.avatar url=urls.avatar %}
+                        </div>
+                        <div class="pe-field">
+                            <span class="pe-label">Shape</span>
+                            {{ form.avatar_shape.errors }}
+                            <div class="shape-picker">
+                                {% for radio in form.avatar_shape %}
+                                    <label class="shape-opt" for="{{ radio.id_for_label }}">
+                                        {{ radio.tag }}<span class="shape-swatch shape-{{ radio.data.value }}"></span>
+                                        <span class="small">{{ radio.choice_label }}</span>
+                                    </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </details>
+
+                <details class="pe-sec" open>
+                    <summary>About you</summary>
+                    <div class="pe-sec-body">
+                        <div class="pe-field">
+                            <label for="{{ form.display_name.id_for_label }}">Name</label>
+                            {{ form.display_name.errors }}{{ form.display_name }}
+                        </div>
+                        <div class="pe-field">
+                            <label for="{{ form.bio.id_for_label }}">Short description</label>
+                            {{ form.bio.errors }}{{ form.bio }}
+                            <span class="pe-count" data-count>150 characters max</span>
+                        </div>
+                    </div>
+                </details>
+
+                <details class="pe-sec" open>
+                    <summary>Banner</summary>
+                    <div class="pe-sec-body">
+                        <div class="pe-field">
+                            {% include 'accounts/_upload_field.html' with field=form.banner key='banner' title='Banner' hint='Wide picture across the top' max_mb=limits.banner url=urls.banner wide=True %}
+                            <label class="chip" for="{{ form.remove_banner.id_for_label }}">{{ form.remove_banner }}<span>Remove banner</span></label>
+                        </div>
+                    </div>
+                </details>
+
+                <details class="pe-sec" open>
+                    <summary>Colors</summary>
+                    <div class="pe-sec-body">
+                        <div class="pe-field">
+                            <span class="pe-label">Card</span>
+                            {% include 'accounts/_color_field.html' with field=form.card_color value=saved.card_color %}
+                        </div>
+                        <div class="pe-field">
+                            <span class="pe-label">Secondary color</span>
+                            {% include 'accounts/_color_field.html' with field=form.background_color value=saved.background_color %}
+                            <p class="pe-note-small">Behind your page, and the color of the music player under your posts.</p>
+                        </div>
+                    </div>
+                </details>
+
+                <details class="pe-sec" open>
+                    <summary>Background image</summary>
+                    <div class="pe-sec-body">
+                        <div class="pe-field">
+                            {% include 'accounts/_upload_field.html' with field=form.background_image key='bgimage' title='Background image' hint='Covers the page color' max_mb=limits.background url=urls.background wide=True %}
+                            <label class="chip" for="{{ form.remove_background_image.id_for_label }}">{{ form.remove_background_image }}<span>Remove background image</span></label>
+                        </div>
+                    </div>
+                </details>
+
+                <details class="pe-sec" open>
+                    <summary>Cursor</summary>
+                    <div class="pe-sec-body">
+                        <div class="pe-field">
+                            {% include 'accounts/_upload_field.html' with field=form.cursor key='cursor' title='Mouse cursor' hint='PNG, animated GIF or .ani with a see-through background. It is shrunk to cursor size' max_mb=limits.cursor url=urls.cursor_tile %}
+                            <label class="chip" for="{{ form.remove_cursor.id_for_label }}">{{ form.remove_cursor }}<span>Remove cursor</span></label>
+                            <p class="pe-note-small">People looking at your page see this cursor. Move your mouse over the preview to try it. A new animated cursor (GIF or .ani) shows up in the preview after you save it.</p>
+                        </div>
+                    </div>
+                </details>
+
+                <details class="pe-sec" open>
+                    <summary>Font</summary>
+                    <div class="pe-sec-body">
+                        <div class="pe-field">
+                            {{ form.font.errors }}
+                            <div class="font-picker">
+                                {% for radio in form.font %}
+                                    <label class="font-opt font-{{ radio.data.value }}" for="{{ radio.id_for_label }}">
+                                        {{ radio.tag }}<span class="font-sample">{{ radio.choice_label }}</span>
+                                    </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </details>
+            </div>
+
+            <footer class="pe-tools-foot">
+                <div class="upload-progress" data-progress role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" hidden>
+                    <div class="upload-track"><div class="upload-fill" data-fill></div></div>
+                    <span class="upload-pct" data-pct>0%</span>
+                </div>
+                <p class="upload-error errorlist" data-error hidden></p>
+                <div class="pe-actions">
+                    <a class="pill" href="{% url 'profile' request.user.username %}">Discard</a>
+                    <button type="submit" data-submit data-busy="Publishing…">Publish</button>
+                </div>
+            </footer>
+        </aside>
+
+        {# ================= YOUR PROFILE, LIVE (right). Filled in by profile_edit.js, never saved. ================= #}
+        <section class="pe-stage" data-stage aria-label="Live preview of your profile">
+            <!--<span class="pe-live"><i aria-hidden="true"></i>Live preview</span>-->
+            <div class="profile-card font-{{ saved.font }}" data-card style="--card-bg: {{ saved.card_color }}; --card-fg: {{ saved.card_text_color }};">
+                <div class="sheet-banner" data-banner><img src="" alt="" data-banner-img></div>
+                <div class="sheet-inner">
+                    <header class="p-head">
+                        <div class="p-avatar">
+                            <div class="pfp-wrap">
+                                <img class="avatar xl shape-{{ saved.avatar_shape }}" src="" alt="" data-p-avatar hidden>
+                                <span class="avatar avatar-empty xl shape-{{ saved.avatar_shape }}" data-p-initial>{{ request.user.username|first|upper }}</span>
+                            </div>
+                        </div>
+                        <div class="p-info">
+                            <h1 class="p-name" data-p-name>{{ saved.name }}</h1>
+                            <p class="p-handle">@{{ request.user.username }}</p>
+                            <p class="p-bio" data-p-bio{% if not saved.bio %} hidden{% endif %}>{{ saved.bio }}</p>
+                            <p class="p-stats">{{ followers_count }} follower{{ followers_count|pluralize }} &middot; {{ following_count }} following &middot; {{ collections_count }} collection{{ collections_count|pluralize }}</p>
+                            <div class="p-actions"><span class="pill primary">Follow</span></div>
+                        </div>
+                    </header>
+
+                    <section class="block">
+                        <div class="block-head block-head-filters">
+                            <nav class="filters" aria-label="Filter"><span class="active">Posts</span></nav>
+                        </div>
+                        <div class="post-feed">
+                            <article class="entry">
+                                <div class="entry-header">
+                                    <img class="avatar shape-{{ saved.avatar_shape }}" src="" alt="" data-p-avatar hidden>
+                                    <span class="avatar avatar-empty shape-{{ saved.avatar_shape }}" data-p-initial>{{ request.user.username|first|upper }}</span>
+                                    <div class="entry-who"><strong data-p-name>{{ saved.name }}</strong><span class="small">@{{ request.user.username }}</span></div>
+                                    <span class="entry-time">Just now</span>
+                                </div>
+                                <h3>A post on your page</h3>
+                                <p>This is how your posts will look on this card, in your colors and your font.</p>
+                                <div class="music-card is-sample" aria-hidden="true">
+                                    <div class="music-disc"><span class="music-art music-art-empty"></span></div>
+                                    <div class="music-meta">
+                                        <strong class="music-title">A song you love</strong>
+                                        <span class="music-artist">Artist name</span>
+                                    </div>
+                                    <span class="music-eq"><i></i><i></i><i></i></span>
+                                    <div class="music-controls">
+                                        <span class="music-btn"><svg class="ico ico-solid" viewBox="0 0 24 24"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg></span>
+                                        <div class="music-track"><span class="music-fill"></span></div>
+                                        <span class="music-time">0:19</span>
+                                    </div>
+                                </div>
+                            </article>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </section>
+
+    </div>
+</form>
+</div>
+<script src="{% static 'js/upload.js' %}" defer></script>
+<script src="{% static 'js/profile_edit.js' %}" defer></script>
+{% endblock %}

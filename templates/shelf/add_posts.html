@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Add posts{% endblock %}
+{% block container_class %}wide{% endblock %}
+{% block content %}
+    <h2 class="block-title">{% if folder %}Add posts to {{ folder.title }}{% else %}Add posts to your shelf{% endif %}</h2>
+    <p><a href="{{ back_url }}">&larr; Back</a></p>
+
+    {% if limit %}
+        <div class="panel"><p class="alert-error">Your shelf is full ({{ limit }} posts). Remove something first.</p></div>
+    {% else %}
+        <div class="panel">
+            {% if posts %}
+                <p class="help">Pick up to {{ room }}. Saw a post you like? Press “Add to shelf” under it, on anyone's post.</p>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="add-grid">
+                        {% for post in posts %}
+                            <label class="add-opt">
+                                <input type="checkbox" name="entry" value="{{ post.pk }}">
+                                <span class="add-pic">
+                                    {% if post.preview_url %}<img src="{{ post.preview_url }}" alt="" referrerpolicy="no-referrer">
+                                    {% else %}<span class="rec-text">{{ post.title|truncatechars:40 }}</span>{% endif %}
+                                </span>
+                                <span class="add-name">{{ post.title }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                    <button type="submit">Add to {% if folder %}collection{% else %}shelf{% endif %}</button>
+                </form>
+            {% else %}
+                <p>Every post of yours is on the shelf already. <a href="{% url 'post_create' %}">Create a new post</a>, or press “Add to shelf” under someone else's post.</p>
+            {% endif %}
+        </div>
+    {% endif %}
+{% endblock %}

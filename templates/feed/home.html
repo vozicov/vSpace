@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Home · space{% endblock %}
+{% block container_class %}home-page{% endblock %}
+{% block content %}
+    <div class="home-head"><h2>For you</h2></div>
+
+    <a class="compose" href="{% url 'post_create' %}">
+        <span class="compose-who">
+            {% include 'feed/_avatar.html' with p=request.user.profile %}
+            <span class="compose-text">
+                <span class="compose-name">{{ request.user.profile.name }}</span>
+                <span class="compose-handle">@{{ request.user.username }}</span>
+            </span>
+        </span>
+        <span class="compose-plus" aria-label="New post">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+    </a>
+
+    {% if not following_any %}
+        <p class="note">You're not following anyone yet, so you're seeing every post. Find people in Explore.</p>
+    {% endif %}
+
+    {% for entry in page_obj %}
+        {% include 'feed/_home_post.html' %}
+    {% empty %}
+        <p class="note">No posts yet.</p>
+    {% endfor %}
+    {% include 'feed/_pager.html' %}
+{% endblock %}

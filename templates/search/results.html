@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}{% if q %}{{ q }} · {% endif %}Search · space{% endblock %}
+{% block container_class %}explore-page{% endblock %}
+{% block content %}
+    {% include 'search/_bar.html' %}
+    <div class="search-page">
+        {% include 'search/_tabs.html' %}
+        <div class="drawer-body">
+            {% if not q %}
+                <p class="drawer-hint">Search for people, posts and tweets.</p>
+            {% else %}
+                {% include 'search/_results.html' %}
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

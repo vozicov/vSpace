@@ -1,0 +1,8 @@
+{% comment %}All / Profiles / Posts / Tweets. Real links (so the full page works with no JavaScript);
+the drawer's script catches the clicks and loads the tab in place.{% endcomment %}
+<nav class="drawer-tabs" aria-label="Kind of result">
+    <a class="drawer-tab{% if type == 'all' %} on{% endif %}" href="{% url 'search' %}?q={{ q|urlencode }}" data-type="all">All</a>
+    <a class="drawer-tab{% if type == 'profiles' %} on{% endif %}" href="{% url 'search' %}?q={{ q|urlencode }}&type=profiles" data-type="profiles">Profiles</a>
+    <a class="drawer-tab{% if type == 'posts' %} on{% endif %}" href="{% url 'search' %}?q={{ q|urlencode }}&type=posts" data-type="posts">Posts</a>
+    <a class="drawer-tab{% if type == 'tweets' %} on{% endif %}" href="{% url 'search' %}?q={{ q|urlencode }}&type=tweets" data-type="tweets">Tweets</a>
+</nav>

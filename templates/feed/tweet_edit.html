@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Edit {% if saved.parent %}comment{% else %}tweet{% endif %} · space{% endblock %}
+{% block container_class %}home-page{% endblock %}
+{% block content %}
+    <div class="home-head"><h2>Edit {% if saved.parent %}comment{% else %}tweet{% endif %}</h2></div>
+
+    <form class="composer" method="post" data-once>
+        {% csrf_token %}
+        {% include 'feed/_composer_head.html' %}
+
+        <div class="composer-body">
+            {{ form.non_field_errors }}
+            {{ form.body.errors }}
+            {{ form.body }}
+        </div>
+
+        <footer class="composer-foot">
+            <span class="composer-count" data-count>280 characters max</span>
+            <a class="pill" href="{{ saved.get_absolute_url }}">Cancel</a>
+            <button type="submit" data-submit data-busy="Saving…">Save</button>
+        </footer>
+    </form>
+    <script src="{% static 'js/upload.js' %}" defer></script>
+{% endblock %}

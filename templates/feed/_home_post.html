@@ -1,0 +1,65 @@
+{% comment %}
+One post on the home page, laid out like the reference: header (avatar, name, @handle, date, menu),
+title, text, one picture of fixed height, then likes / comments and the shelf button.
+The card wears the post owner's profile background (color, plus the picture if they have one).
+Needs `entry`.
+{% endcomment %}
+{% with p=entry.author.profile %}
+<article class="home-post{% if p.background_image %} has-img{% endif %}" style="--post-bg: {{ p.background_color }}; --post-fg: {{ p.background_text_color }};{% if p.background_image %} --post-img: url('{{ p.background_image.url }}');{% endif %}">
+    <header class="hp-head">
+        <a class="hp-who" href="{% url 'profile' entry.author.username %}">
+            {% include 'feed/_avatar.html' with p=p %}
+            <span class="hp-names">
+                <span class="hp-name">{{ p.name }}</span>
+                <span class="hp-sub"><span class="hp-handle">@{{ entry.author.username }}</span><span>{{ entry.created_at|date:"j M" }}</span></span>
+            </span>
+        </a>
+        <details class="menu">
+            <summary aria-label="More">&bull;&bull;&bull;</summary>
+            <div class="menu-list">
+                <form class="inline-form" method="post" action="{% url 'shelf_toggle_post' entry.pk %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <button type="submit" class="linkbtn">{% if entry.on_shelf_by_me %}Remove from shelf{% else %}Add to shelf{% endif %}</button>
+                </form>
+                <form class="inline-form" method="post" action="{% url 'pin_toggle' entry.pk %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <button type="submit" class="linkbtn">{% if entry.pinned_by_me %}Unpin from profile{% else %}Pin to profile{% endif %}</button>
+                </form>
+                {% if entry.author_id == request.user.id %}
+                    <a class="linkbtn" href="{% url 'entry_edit' entry.pk %}">Edit post</a>
+                    <a class="linkbtn" href="{% url 'entry_delete' entry.pk %}">Delete post</a>
+                {% endif %}
+            </div>
+        </details>
+    </header>
+
+    <div class="hp-body">
+        <h3><a href="{{ entry.get_absolute_url }}">{{ entry.title }}</a></h3>
+        {% if entry.body %}
+            <div class="hp-text"><span class="clamp">{{ entry.body }}</span></div>
+            {% if entry.body|length > 220 %}<a class="hp-more" href="{{ entry.get_absolute_url }}">see more</a>{% endif %}
+        {% endif %}
+        {% if entry.media %}
+            <div class="hp-media">
+                {% if entry.media_type == 'video' %}
+                    <video src="{{ entry.media.url }}" controls preload="metadata"{% if entry.thumbnail %} poster="{{ entry.thumbnail.url }}"{% endif %}></video>
+                {% else %}
+                    <a href="{{ entry.get_absolute_url }}"><img src="{{ entry.media.url }}" alt="{{ entry.title }}" loading="lazy"></a>
+                {% endif %}
+            </div>
+        {% endif %}
+        {% include 'feed/_music.html' %}
+    </div>
+
+    <footer class="hp-foot">
+        {% include 'feed/_stats.html' %}
+        <form class="inline-form" method="post" action="{% url 'shelf_toggle_post' entry.pk %}">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <button type="submit" class="shelf-act {% if entry.on_shelf_by_me %}on{% endif %}">{% if entry.on_shelf_by_me %}On shelf &#10003;{% else %}Add to shelf{% endif %}</button>
+        </form>
+    </footer>
+</article>
+{% endwith %}

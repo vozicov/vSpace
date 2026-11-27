@@ -1,0 +1,70 @@
+/* The shelf: posts and collections only.
+   A collection's cover is a tilted collage of its posts (same arrangement as the reference's
+   collection tiles). Pop-ups use :target, so there is no JavaScript. */
+
+/* ---------- Collection cover ---------- */
+.cover { position: absolute; inset: 0; display: block; }
+.piece {
+    --r: 0deg; --hx: 0; --hy: 0;
+    position: absolute; display: block;
+    transform: rotate(var(--r));
+    transition: transform 0.3s;
+}
+.piece img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.piece-text {
+    display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;
+    padding: 0.4rem; border: 1px solid var(--line); background: color-mix(in srgb, var(--card-bg, var(--paper)) 92%, currentColor);
+    font-size: 0.7rem; font-weight: 700; line-height: 1.1; text-align: center; word-break: break-word;
+}
+.tile-art:hover .piece { transform: translate(var(--hx), var(--hy)) rotate(var(--r)); }
+
+.n-1 .p1 { top: 30%; left: 15%; width: 70%; height: 65%; --r: -8deg; --hx: -8px; --hy: -8px; }
+
+.n-2 .p1 { top: 10%; left: 8%;  width: 55%; height: 55%; --r: -8deg; --hx: -8px; --hy: -6px; }
+.n-2 .p2 { top: 38%; left: 38%; width: 55%; height: 55%; --r: 5deg;  --hx: 8px;  --hy: 6px; }
+
+.n-3 .p1 { top: 5%;  left: 8%;  width: 50%; height: 50%; --r: -8deg; --hx: -8px; --hy: -8px; }
+.n-3 .p2 { top: 12%; left: 46%; width: 50%; height: 50%; --r: 4deg;  --hx: 8px;  --hy: -6px; }
+.n-3 .p3 { top: 48%; left: 22%; width: 52%; height: 48%; --r: -3deg; --hx: 0;    --hy: 8px; }
+
+.n-4 .p1 { top: 5%;  left: 10%; width: 45%; height: 45%; --r: -8deg; --hx: -8px; --hy: -8px; z-index: 4; }
+.n-4 .p2 { top: 15%; left: 45%; width: 50%; height: 50%; --r: 4deg;  --hx: 8px;  --hy: -6px; z-index: 3; }
+.n-4 .p3 { top: 45%; left: 5%;  width: 55%; height: 45%; --r: -3deg; --hx: -6px; --hy: 8px;  z-index: 2; }
+.n-4 .p4 { top: 35%; left: 30%; width: 48%; height: 55%; --r: 6deg;  --hx: 4px;  --hy: 6px;  z-index: 1; }
+
+.n-0 { border: 1.5px dashed var(--line-strong); display: flex; align-items: center; justify-content: center; }
+.n-0::after { content: 'Empty'; font-family: var(--mono); font-size: 0.7rem; text-transform: uppercase; opacity: 0.5; }
+
+/* ---------- Pop-ups (the "pin a post" picker) ---------- */
+.folder-sheet { display: none; position: fixed; inset: 0; z-index: 50; align-items: center; justify-content: center; padding: 1rem; }
+.folder-sheet:target { display: flex; }
+.folder-backdrop { position: absolute; inset: 0; background: rgba(8, 6, 3, 0.45); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+.folder-panel {
+    position: relative; width: min(100%, 34rem); max-height: calc(100dvh - 2rem); overflow: auto;
+    padding: 1.5rem; border-radius: 1rem;
+    background: var(--card-bg, var(--paper)); color: var(--card-fg, var(--ink));
+    box-shadow: 0 20px 50px rgba(8, 6, 3, 0.35);
+    text-align: left; animation: sheet-pop 0.18s ease-out;
+}
+.folder-title { margin: 0 0 1rem; font-size: 1.125rem; }
+.folder-close { display: block; margin-top: 1rem; text-align: center; font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; }
+@keyframes sheet-pop { from { transform: scale(0.95); opacity: 0; } }
+
+.picker-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
+.picker-item { display: block; width: 100%; aspect-ratio: 1; padding: 0; border: 0; border-radius: 0; background: none; cursor: pointer; }
+.picker-item:hover { opacity: 1; transform: scale(1.04); }
+.picker-item img { display: block; width: 100%; height: 100%; object-fit: contain; }
+
+/* ---------- Add posts (tick the ones you want) ---------- */
+.add-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr)); gap: 1.25rem 1rem; margin-bottom: 1.5rem; }
+.add-opt { position: relative; display: block; margin: 0; cursor: pointer; text-transform: none; letter-spacing: 0; font-family: var(--sans); opacity: 1; }
+.add-opt input { position: absolute; top: 0.4rem; left: 0.4rem; z-index: 2; width: 1.1rem; height: 1.1rem; accent-color: var(--accent); }
+.add-pic { display: block; aspect-ratio: 1; }
+.add-pic img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.add-pic .rec-text { font-size: 0.75rem; padding: 0.5rem; }
+.add-opt:has(input:checked) .add-pic { outline: 2px solid currentColor; outline-offset: 3px; }
+.add-name { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-top: 0.5rem; font-size: 0.75rem; }
+
+/* "Pin to profile" replace list */
+.pin-list { list-style: none; margin: 0.5rem 0 0; padding: 0; display: grid; gap: 0.5rem; }
+.pin-list li { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }

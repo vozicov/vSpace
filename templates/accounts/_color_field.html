@@ -1,0 +1,17 @@
+{% comment %}
+A themed color button: a round swatch, the hex code and a "Pick" pill (it opens the system color
+dialog), plus quick-pick dots that appear when JavaScript is on.
+Needs: field, value (the saved color), palette.
+{% endcomment %}
+<div class="color-field" data-color-field>
+    {{ field.errors }}
+    {{ field }}
+    <label class="swatch-btn" for="{{ field.id_for_label }}" style="--sw: {{ value }};">
+        <span class="swatch-dot"></span>
+        <span class="swatch-hex" data-hex>{{ value }}</span>
+        <span class="upload-pick">Pick</span>
+    </label>
+    <div class="presets" data-presets hidden>
+        {% for c in palette %}<button type="button" class="preset" data-color="{{ c }}" style="--sw: {{ c }};" aria-label="Use {{ c }}"></button>{% endfor %}
+    </div>
+</div>

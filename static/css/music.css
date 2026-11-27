@@ -1,0 +1,165 @@
+/* Music and attachments on posts:
+   1. the round attach buttons (picture / song) on the new post form,
+   2. the song search under them,
+   3. the little record player card under a post. */
+
+/* ---------- Tiny shared bits ---------- */
+.ico { flex: none; width: 1.25rem; height: 1.25rem; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.ico-solid { fill: currentColor; stroke: none; }
+
+.music-art { flex: none; width: 3rem; height: 3rem; border-radius: 0.7rem; object-fit: cover; background: var(--line); }
+.music-art-empty { display: inline-flex; align-items: center; justify-content: center; }
+.music-art-empty::before { content: '\266A'; font-size: 1.25rem; opacity: 0.5; }
+.music-meta { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.2rem; }
+.music-title, .music-artist { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.music-title { font-size: 0.9375rem; font-weight: 500; }
+a.music-title:hover { text-decoration: underline; text-underline-offset: 0.2em; }
+.music-artist { font-size: 0.8125rem; opacity: 0.65; }
+
+/* ---------- Composer: attach buttons ---------- */
+.attach .sr-only {
+    position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
+    clip-path: inset(50%); white-space: nowrap; border: 0;
+}
+/* the real file input stays in the page (so the keyboard and screen readers can use it) but is not seen */
+.attach input[type="file"] {
+    position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0;
+    overflow: hidden; clip-path: inset(50%); opacity: 0;
+}
+
+.attach-bar { display: flex; align-items: center; gap: 0.6rem; }
+.attach .attach-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 2.75rem; height: 2.75rem; margin: 0; padding: 0;
+    border: 1px solid var(--line-strong); border-radius: 50%;
+    background: transparent; color: inherit; opacity: 1; cursor: pointer;
+    transition: transform 0.15s, background 0.15s;
+}
+.attach .attach-btn:hover { background: color-mix(in srgb, currentColor 8%, transparent); transform: translateY(-1px) rotate(-6deg); opacity: 1; }
+.attach .attach-btn:active { transform: scale(0.94); }
+.attach .attach-btn:focus-visible,
+.attach input[type="file"]:focus-visible + .attach-btn { outline: 2px solid var(--ink); outline-offset: 2px; }
+.attach .attach-btn.is-on { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+
+.attach-chip {
+    display: flex; align-items: center; gap: 0.75rem;
+    margin-top: 0.75rem; padding: 0.45rem 0.6rem 0.45rem 0.45rem;
+    border: 1px solid var(--line-strong); border-radius: 1rem;
+}
+.attach-thumb { flex: none; display: block; width: 3rem; height: 3rem; border-radius: 0.7rem; object-fit: cover; background: var(--line); }
+.attach-thumb-icon { display: flex; align-items: center; justify-content: center; }
+.attach .attach-x {
+    flex: none; width: 1.9rem; height: 1.9rem; padding: 0;
+    border: 1px solid var(--line-strong); border-radius: 50%;
+    background: transparent; color: inherit; font-size: 1.1rem; line-height: 1;
+}
+.attach .attach-x:hover { background: color-mix(in srgb, currentColor 8%, transparent); opacity: 1; }
+.attach .help { margin-top: 0.75rem; }
+.attach [hidden] { display: none; }
+
+/* ---------- Composer: song search ---------- */
+.music-panel { margin-top: 0.75rem; }
+.music-q {
+    width: 100%; padding: 0.6rem 0.9rem;
+    border: 1px solid var(--line-strong); border-radius: 999px;
+    background: transparent; color: inherit; font: inherit; font-size: 0.9375rem;
+}
+.music-q:focus { outline: 2px solid var(--ink); outline-offset: 1px; }
+
+.music-results {
+    margin: 0.5rem 0 0; padding: 0; list-style: none;
+    max-height: 20rem; overflow-y: auto;
+    border: 1px solid var(--line); border-radius: 1rem;
+}
+.music-row { display: flex; align-items: center; gap: 0.5rem; border-top: 1px solid var(--line); }
+.music-row:first-child { border-top: 0; }
+.music-note { padding: 0.75rem 0.9rem; font-size: 0.8125rem; opacity: 0.7; }
+
+/* these are buttons, but must not look like the site's pill buttons */
+.attach .music-choose {
+    flex: 1; min-width: 0; display: flex; align-items: center; gap: 0.75rem;
+    padding: 0.5rem 0.6rem; border: 0; border-radius: 0;
+    background: none; color: inherit; font: inherit; text-align: left; cursor: pointer;
+}
+.attach .music-choose:hover, .attach .music-choose:focus-visible {
+    background: color-mix(in srgb, currentColor 8%, transparent); opacity: 1;
+}
+/* round preview button: play, then stop */
+.attach .music-play {
+    flex: none; width: 2rem; height: 2rem; margin-right: 0.6rem; padding: 0 0 0 0.1rem;
+    border-radius: 50%; font-size: 0.7rem; line-height: 1;
+}
+
+/* ---------- Under a post: the record player ---------- */
+.music-card {
+    /* Colours: the post owner's secondary colour (--song-bg) and the readable text colour on it
+       (--song-ink), set by _music.html and by the profile editor's preview. Everything else is
+       mixed from those two, so the card works on any colour. */
+    --mc-bg: var(--song-bg, #fff1e3);
+    --mc-ink: var(--song-ink, #3d2b24);
+    --mc-accent: var(--mc-ink);
+    --mc-track: color-mix(in srgb, var(--mc-ink) 14%, var(--mc-bg));
+    --mc-fill: color-mix(in srgb, var(--mc-ink) 40%, var(--mc-bg));
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas: 'disc meta eq' 'disc controls controls';
+    align-items: center; gap: 0.4rem 1rem;
+    margin: 0.9rem 0 1.25rem; padding: 1.35rem 1.4rem 1.35rem 1.1rem;
+    /* no border and no shadow: a flat rounded rectangle. Browsers that know
+       `corner-shape` turn the corners into a real squircle, the others keep round corners. */
+    border: 0; border-radius: 2rem; corner-shape: squircle;
+    background: var(--mc-bg); color: var(--mc-ink);
+}
+/* the sample in the profile editor's preview: halfway through a song */
+.music-card.is-sample { --pct: 35%; }
+
+/* the cover: a big square with soft corners */
+.music-disc { grid-area: disc; display: flex; width: 5.75rem; height: 5.75rem; }
+.music-disc .music-art { flex: none; width: 100%; height: 100%; border-radius: 1rem; object-fit: cover; background: var(--mc-track); }
+.music-disc .music-art-empty::before { font-size: 2rem; }
+
+.music-card .music-meta { grid-area: meta; gap: 0.15rem; }
+.music-card .music-title { font-family: var(--serif); font-size: 1.0625rem; font-weight: 700; line-height: 1.15; }
+.music-card .music-artist { opacity: 0.7; }
+.music-card .music-artist::before { content: '\266A\00a0'; color: var(--mc-accent); }
+
+/* three little bars that dance while the song plays */
+.music-eq { grid-area: eq; display: flex; align-items: flex-end; gap: 2px; height: 1rem; opacity: 0; transition: opacity 0.2s; }
+.music-eq i { width: 3px; height: 30%; border-radius: 2px; background: var(--mc-accent); animation: music-bounce 0.9s ease-in-out infinite alternate; animation-play-state: paused; }
+.music-eq i:nth-child(2) { animation-delay: -0.3s; }
+.music-eq i:nth-child(3) { animation-delay: -0.6s; }
+.music-card.is-playing .music-eq { opacity: 1; }
+.music-card.is-playing .music-eq i { animation-play-state: running; }
+@keyframes music-bounce { from { height: 20%; } to { height: 100%; } }
+
+.music-controls { grid-area: controls; display: flex; align-items: center; gap: 0.7rem; min-width: 0; }
+.music-card .music-btn {
+    flex: none; display: inline-flex; align-items: center; justify-content: center;
+    width: 2.25rem; height: 2.25rem; padding: 0;
+    border: 1.5px solid var(--mc-accent); border-radius: 50%;
+    background: var(--mc-accent); color: var(--mc-bg);
+    transition: transform 0.15s;
+}
+.music-card .music-btn:hover { transform: scale(1.08); opacity: 1; }
+.music-card .music-btn:active { transform: scale(0.94); }
+.music-card .music-btn:focus-visible { outline: 2px solid var(--mc-accent); outline-offset: 2px; }
+.music-card .music-btn .ico { width: 1rem; height: 1rem; }
+.music-card .music-btn[hidden] { display: none; }
+.music-ico-pause { display: none; }
+.music-card.is-playing .music-ico-pause { display: block; }
+.music-card.is-playing .music-ico-play { display: none; }
+
+/* the progress bar fills up with blush pink and a heart rides at the end */
+.music-track { position: relative; flex: 1; min-width: 0; height: 0.5rem; border-radius: 999px; background: var(--mc-track); cursor: pointer; }
+.music-track::before { content: ''; position: absolute; inset: -0.7rem 0; }   /* a bigger target for fingers */
+.music-fill { position: absolute; inset: 0 auto 0 0; width: var(--pct, 0%); border-radius: inherit; background: var(--mc-fill); transition: width 0.25s linear; }
+.music-fill::after { content: '\2665'; position: absolute; right: -0.45rem; top: 50%; transform: translateY(-50%); font-size: 0.85rem; line-height: 1; color: var(--mc-accent); }
+.music-time { flex: none; min-width: 2.4em; font-family: var(--mono); font-size: 0.75rem; text-align: right; opacity: 0.75; }
+
+@media (prefers-reduced-motion: reduce) {
+    .music-eq i { animation: none; }
+    .music-eq i { height: 60%; }
+}
+
+/* the profile feed lays a post out with `order` (see profile.css): the song sits with the picture */
+.post-feed .music-card { order: 3; }

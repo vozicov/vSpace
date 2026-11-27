@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Join · space{% endblock %}
+{% block body_attrs %}class="auth"{% endblock %}
+{% block container_class %}auth-wrap{% endblock %}
+{% block content %}
+    {% include 'registration/_auth_shapes.html' %}
+    <div class="auth-card">
+        <a class="auth-brand" href="{% url 'login' %}">space</a>
+        <h1 class="auth-title">Join space</h1>
+        <p class="auth-sub">Space is invite-only. Enter the referral code you were given to make an account.</p>
+
+        <form method="post" data-once>
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+
+            <div class="auth-field">
+                <label for="{{ form.referral_code.id_for_label }}">Referral code</label>
+                {{ form.referral_code.errors }}
+                {{ form.referral_code }}
+            </div>
+
+            <div class="auth-rule" aria-hidden="true"></div>
+
+            <div class="auth-field">
+                <label for="{{ form.username.id_for_label }}">Choose a username</label>
+                {{ form.username.errors }}
+                {{ form.username }}
+                <p class="help">Letters, numbers and @ . + - _ only. It becomes your page address.</p>
+            </div>
+            <div class="auth-field">
+                <label for="{{ form.password1.id_for_label }}">Password</label>
+                {{ form.password1.errors }}
+                {{ form.password1 }}
+                <div class="help auth-rules">{{ form.password1.help_text|safe }}</div>
+            </div>
+            <div class="auth-field">
+                <label for="{{ form.password2.id_for_label }}">Password again</label>
+                {{ form.password2.errors }}
+                {{ form.password2 }}
+            </div>
+            <button class="auth-submit" type="submit" data-submit data-busy="Creating account…">Create account</button>
+        </form>
+
+        <p class="auth-switch">Already have an account? <a href="{% url 'login' %}">Log in</a></p>
+    </div>
+    <script src="{% static 'js/upload.js' %}" defer></script>
+{% endblock %}

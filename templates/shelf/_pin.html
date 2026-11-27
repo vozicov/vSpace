@@ -1,0 +1,15 @@
+{% comment %}A post pinned next to the profile picture. Needs `pin`. The owner also gets an unpin button.{% endcomment %}
+<div class="pin-slot slot-{{ pin.slot }}" style="--rot: {{ pin.rotation }}deg;">
+    <a class="pin" href="{{ pin.entry.get_absolute_url }}" title="{{ pin.entry.title }}">
+        {% if pin.preview_url %}
+            <img src="{{ pin.preview_url }}" alt="" referrerpolicy="no-referrer">
+        {% else %}
+            <span class="pin-text">{{ pin.entry.title|truncatechars:30 }}</span>
+        {% endif %}
+    </a>
+    {% if is_owner %}
+        <form class="pin-unpin" method="post" action="{% url 'pin_remove' pin.slot %}">
+            {% csrf_token %}<button type="submit" aria-label="Unpin">&times;</button>
+        </form>
+    {% endif %}
+</div>

@@ -1,0 +1,10 @@
+<a class="grid-item" href="{{ entry.get_absolute_url }}">
+    {% if entry.thumbnail %}
+        <img src="{{ entry.thumbnail.url }}" alt="" loading="lazy">
+    {% elif entry.media_type == 'image' %}
+        <img src="{{ entry.media.url }}" alt="" loading="lazy">
+    {% else %}
+        <span class="grid-text">{{ entry.title }}</span>
+    {% endif %}
+    {% if entry.media_type == 'video' %}<span class="grid-badge">▶</span>{% endif %}
+</a>

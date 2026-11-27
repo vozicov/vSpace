@@ -1,0 +1,77 @@
+/* Profile fonts. Files are self-hosted in static/fonts/ (no request to Google).
+   Every font is free under the SIL Open Font License 1.1 / Apache 2.0 (via Fontsource). */
+
+/* ---- Site fonts (the look of the reference) ----
+   Titles use Perfektta (Bold / SemiBold), everything else uses the grotesk (ABC Monument
+   Grotesk Mono, Regular / Bold). These are paid fonts, so the files are NOT included: put your
+   licensed copies in static/fonts/ with exactly these names and they are picked up at once:
+       Perfektta-Bold.ttf   Perfektta-SemiBold.ttf
+       ABCMonumentGroteskMono-Regular.ttf   ABCMonumentGroteskMono-Bold.woff2
+   Until then the site falls back to a serif for titles and to DM Sans / system fonts for text. */
+@font-face { font-family: 'Perfektta'; font-weight: 700; font-style: normal; font-display: swap;
+    src: url('../fonts/Perfektta-Bold.ttf') format('truetype'); }
+@font-face { font-family: 'Perfektta'; font-weight: 600; font-style: normal; font-display: swap;
+    src: url('../fonts/Perfektta-SemiBold.ttf') format('truetype'); }
+@font-face { font-family: 'Grotesk'; font-weight: 400; font-style: normal; font-display: swap;
+    src: url('../fonts/ABCMonumentGroteskMono-Regular.ttf') format('truetype'); }
+@font-face { font-family: 'Grotesk'; font-weight: 700; font-style: normal; font-display: swap;
+    src: url('../fonts/ABCMonumentGroteskMono-Bold.woff2') format('woff2'); }
+
+@font-face { font-family: 'DM Sans'; font-weight: 400; font-style: normal; font-display: swap;
+    src: url('../fonts/dmsans-400.woff2') format('woff2'); }
+@font-face { font-family: 'DM Sans'; font-weight: 500; font-style: normal; font-display: swap;
+    src: url('../fonts/dmsans-500.woff2') format('woff2'); }
+@font-face { font-family: 'DM Sans'; font-weight: 700; font-style: normal; font-display: swap;
+    src: url('../fonts/dmsans-700.woff2') format('woff2'); }
+@font-face { font-family: 'DM Mono'; font-weight: 400; font-style: normal; font-display: swap;
+    src: url('../fonts/dmmono-400.woff2') format('woff2'); }
+@font-face { font-family: 'DM Mono'; font-weight: 500; font-style: normal; font-display: swap;
+    src: url('../fonts/dmmono-500.woff2') format('woff2'); }
+
+@font-face { font-family: 'Inter'; font-weight: 400; font-style: normal; font-display: swap;
+    src: url('../fonts/inter-400.woff2') format('woff2'); }
+@font-face { font-family: 'Inter'; font-weight: 700; font-style: normal; font-display: swap;
+    src: url('../fonts/inter-700.woff2') format('woff2'); }
+@font-face { font-family: 'Playfair Display'; font-weight: 400; font-style: normal; font-display: swap;
+    src: url('../fonts/playfair-400.woff2') format('woff2'); }
+@font-face { font-family: 'Playfair Display'; font-weight: 700; font-style: normal; font-display: swap;
+    src: url('../fonts/playfair-700.woff2') format('woff2'); }
+@font-face { font-family: 'Space Mono'; font-weight: 400; font-style: normal; font-display: swap;
+    src: url('../fonts/spacemono-400.woff2') format('woff2'); }
+@font-face { font-family: 'Space Mono'; font-weight: 700; font-style: normal; font-display: swap;
+    src: url('../fonts/spacemono-700.woff2') format('woff2'); }
+@font-face { font-family: 'Pacifico'; font-weight: 400; font-style: normal; font-display: swap;
+    src: url('../fonts/pacifico-400.woff2') format('woff2'); }
+@font-face { font-family: 'Lobster'; font-weight: 400; font-style: normal; font-display: swap;
+    src: url('../fonts/lobster-400.woff2') format('woff2'); }
+@font-face { font-family: 'Dancing Script'; font-weight: 400; font-style: normal; font-display: swap;
+    src: url('../fonts/dancing-400.woff2') format('woff2'); }
+@font-face { font-family: 'Dancing Script'; font-weight: 700; font-style: normal; font-display: swap;
+    src: url('../fonts/dancing-700.woff2') format('woff2'); }
+@font-face { font-family: 'Caveat'; font-weight: 400; font-style: normal; font-display: swap;
+    src: url('../fonts/caveat-400.woff2') format('woff2'); }
+@font-face { font-family: 'Caveat'; font-weight: 700; font-style: normal; font-display: swap;
+    src: url('../fonts/caveat-700.woff2') format('woff2'); }
+@font-face { font-family: 'Permanent Marker'; font-weight: 400; font-style: normal; font-display: swap;
+    src: url('../fonts/marker-400.woff2') format('woff2'); }
+@font-face { font-family: 'Bebas Neue'; font-weight: 400; font-style: normal; font-display: swap;
+    src: url('../fonts/bebas-400.woff2') format('woff2'); }
+@font-face { font-family: 'Press Start 2P'; font-weight: 400; font-style: normal; font-display: swap;
+    src: url('../fonts/pixel-400.woff2') format('woff2'); }
+
+/* The profile card (and the edit-page previews) pick one of these by class.
+   "default" is the site pair: Perfektta for titles, the grotesk for the rest. */
+.font-default { font-family: var(--sans); }
+.font-default :is(h1, h2, h3) { font-family: var(--serif); }
+/* any other font the owner picked is used for everything on their card, titles included */
+.profile-card[class*='font-']:not(.font-default) :is(h1, h2, h3) { font-family: inherit; }
+.font-inter { font-family: 'Inter', sans-serif; }
+.font-playfair { font-family: 'Playfair Display', serif; }
+.font-spacemono { font-family: 'Space Mono', monospace; }
+.font-pacifico { font-family: 'Pacifico', cursive; }
+.font-lobster { font-family: 'Lobster', cursive; }
+.font-dancing { font-family: 'Dancing Script', cursive; }
+.font-caveat { font-family: 'Caveat', cursive; }
+.font-marker { font-family: 'Permanent Marker', cursive; }
+.font-bebas { font-family: 'Bebas Neue', sans-serif; }
+.font-pixel { font-family: 'Press Start 2P', monospace; }

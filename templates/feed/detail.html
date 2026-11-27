@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{% if entry.title %}{{ entry.title }}{% else %}Tweet by @{{ entry.author.username }}{% endif %}{% endblock %}
+{% block container_class %}wide{% endblock %}
+{% block content %}
+    {% include 'feed/_entry.html' with full=True %}
+
+    {% if form %}
+    <div class="panel">
+        <form method="post" data-once>
+            {% csrf_token %}
+            {{ form.submit_token }}
+            {{ form.non_field_errors }}
+            {{ form.body.errors }}
+            {{ form.body }}
+            <button type="submit" data-submit data-busy="Posting…">Comment</button>
+        </form>
+    </div>
+    <script src="{% static 'js/upload.js' %}" defer></script>
+    {% else %}
+    <p class="note"><a href="{% url 'login' %}?next={{ request.path|urlencode }}">Log in</a> to like or comment.</p>
+    {% endif %}
+
+    {% for entry in replies %}
+        {% include 'feed/_entry.html' %}
+    {% endfor %}
+{% endblock %}

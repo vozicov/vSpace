@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Pin to profile{% endblock %}
+{% block container_class %}wide{% endblock %}
+{% block content %}
+    <h2 class="block-title">Pin to profile</h2>
+    <div class="panel">
+        <p>All 4 spots next to your picture are taken. Pick one to replace with <strong>{{ entry.title }}</strong>:</p>
+        <ul class="pin-list">
+            {% for pin in pins %}
+                <li>
+                    <span>{{ pin.entry.title|truncatechars:30 }}</span>
+                    <form class="inline-form" method="post" action="{% url 'pin_toggle' entry.pk %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="slot" value="{{ pin.slot }}">
+                        <input type="hidden" name="next" value="{{ back }}">
+                        <button type="submit" class="btn-inline">Replace</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+        <p><a href="{{ back }}">Cancel</a></p>
+    </div>
+{% endblock %}

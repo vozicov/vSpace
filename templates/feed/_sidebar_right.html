@@ -1,0 +1,24 @@
+{% load side_tags %}
+{% comment %}
+Right sidebar, copied from the Rec League layout: a "Following" heading and a wrapping group
+of small pills (avatar + short name) in each person's own card colors. No border.
+Only shown on wide screens.
+{% endcomment %}
+{% following_of request.user as follows %}
+<aside class="sidebar-right">
+    <h3>Following</h3>
+    {% if follows %}
+        <div class="follow-pills">
+            {% for f in follows %}
+                {% with p=f.following.profile %}
+                <a class="follow-pill" href="{% url 'profile' f.following.username %}" style="--pill-bg: {{ p.card_color }}; --pill-fg: {{ p.card_text_color }};">
+                    {% if p.avatar %}<img class="pill-avatar" src="{{ p.avatar.url }}" alt="">{% else %}<span class="pill-avatar pill-avatar-empty">{{ f.following.username|first|upper }}</span>{% endif %}
+                    <span class="pill-name">{{ p.name }}</span>
+                </a>
+                {% endwith %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="side-empty">No following yet :(</p>
+    {% endif %}
+</aside>

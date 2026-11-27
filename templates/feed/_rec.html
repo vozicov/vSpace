@@ -1,0 +1,53 @@
+{% comment %}
+One post as a card, like a "rec" on the reference site: a square picture that is never cropped,
+a small uppercase line, the title, three lines of text, then the counts.
+Needs `entry`. Optional: `item` + `editing` (owner on their own shelf: move / edit / remove).
+{% endcomment %}
+<article class="rec">
+    <a class="rec-media" href="{{ entry.get_absolute_url }}" aria-label="{{ entry.title }}">
+        {% if entry.preview_url %}
+            <img src="{{ entry.preview_url }}" alt="" loading="lazy" referrerpolicy="no-referrer">
+        {% else %}
+            <span class="rec-text">{{ entry.title|truncatechars:80 }}</span>
+        {% endif %}
+        {% if entry.media_type == 'video' %}<span class="rec-badge" aria-hidden="true">&#9654;</span>{% endif %}
+    </a>
+    <div class="rec-meta">
+        <a href="{% url 'profile' entry.author.username %}">@{{ entry.author.username }}</a>
+        <span>{{ entry.created_at|date:"j M" }}</span>
+    </div>
+    <div class="rec-head">
+        <a class="rec-title" href="{{ entry.get_absolute_url }}">{{ entry.title }}</a>
+        <details class="menu">
+            <summary aria-label="More">&bull;&bull;&bull;</summary>
+            <div class="menu-list">
+                <form class="inline-form" method="post" action="{% url 'shelf_toggle_post' entry.pk %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <button type="submit" class="linkbtn">{% if entry.on_shelf_by_me %}Remove from shelf{% else %}Add to shelf{% endif %}</button>
+                </form>
+                <form class="inline-form" method="post" action="{% url 'pin_toggle' entry.pk %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <button type="submit" class="linkbtn">{% if entry.pinned_by_me %}Unpin from profile{% else %}Pin to profile{% endif %}</button>
+                </form>
+                {% if entry.author_id == request.user.id %}
+                    <a class="linkbtn" href="{% url 'entry_edit' entry.pk %}">Edit post</a>
+                    <a class="linkbtn" href="{% url 'entry_delete' entry.pk %}">Delete post</a>
+                {% endif %}
+            </div>
+        </details>
+    </div>
+    {% if entry.body %}
+        <a class="rec-body" href="{{ entry.get_absolute_url }}"><span class="clamp">{{ entry.body }}</span> <b>more</b></a>
+    {% endif %}
+    {% include 'feed/_stats.html' %}
+    {% if editing and item %}
+        <div class="rec-tools">
+            <form class="inline-form" method="post" action="{% url 'item_move' item.pk 'left' %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button type="submit" class="linkbtn" aria-label="Move earlier">&larr;</button></form>
+            <form class="inline-form" method="post" action="{% url 'item_move' item.pk 'right' %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button type="submit" class="linkbtn" aria-label="Move later">&rarr;</button></form>
+            <a href="{% url 'item_edit' item.pk %}">Move to&hellip;</a>
+            <form class="inline-form" method="post" action="{% url 'item_delete' item.pk %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button type="submit" class="linkbtn">Remove</button></form>
+        </div>
+    {% endif %}
+</article>

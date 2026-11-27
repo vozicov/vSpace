@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Settings · space{% endblock %}
+{% block container_class %}wide{% endblock %}
+{% block content %}
+    <div class="home-head"><h2>Settings</h2></div>
+
+    {% for message in messages %}<p class="note set-saved" role="status">{{ message }}</p>{% endfor %}
+
+    <form class="panel set-panel" method="post" data-once>
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <h3 class="set-title">Appearance</h3>
+        <p class="set-lead">Light or dark for the sidebars, home, explore, tweets and the other pages around you. Profile pages always keep their owner's own look.</p>
+        {{ form.theme.errors }}
+        <div class="set-themes" role="radiogroup" aria-label="Theme">
+            {% for radio in form.theme %}
+                <label class="set-theme" for="{{ radio.id_for_label }}">
+                    {{ radio.tag }}<span>{{ radio.choice_label }}</span>
+                </label>
+            {% endfor %}
+        </div>
+
+        <hr class="set-rule">
+
+        <h3 class="set-title">Privacy</h3>
+        <p class="set-lead">Choose what people who are not signed in can see. Members of space always see your whole profile.</p>
+
+        <div class="set-group">
+            <div class="set-row">
+                <input type="checkbox" name="{{ form.is_public.html_name }}" id="{{ form.is_public.id_for_label }}"{% if form.is_public.value %} checked{% endif %}>
+                <label for="{{ form.is_public.id_for_label }}">
+                    <strong>{{ form.is_public.label }}</strong>
+                    <span class="small">{{ form.is_public.help_text }}</span>
+                </label>
+            </div>
+
+            <div class="set-sub">
+                <p class="small set-sub-note">If your profile is public, visitors can also see:</p>
+                <div class="set-row">
+                    <input type="checkbox" name="{{ form.public_posts.html_name }}" id="{{ form.public_posts.id_for_label }}"{% if form.public_posts.value %} checked{% endif %}>
+                    <label for="{{ form.public_posts.id_for_label }}">
+                        <strong>{{ form.public_posts.label }}</strong>
+                        <span class="small">{{ form.public_posts.help_text }}</span>
+                    </label>
+                </div>
+                <div class="set-row">
+                    <input type="checkbox" name="{{ form.public_tweets.html_name }}" id="{{ form.public_tweets.id_for_label }}"{% if form.public_tweets.value %} checked{% endif %}>
+                    <label for="{{ form.public_tweets.id_for_label }}">
+                        <strong>{{ form.public_tweets.label }}</strong>
+                        <span class="small">{{ form.public_tweets.help_text }}</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" data-submit data-busy="Saving…">Save</button>
+    </form>
+
+    <script src="{% static 'js/upload.js' %}" defer></script>
+{% endblock %}

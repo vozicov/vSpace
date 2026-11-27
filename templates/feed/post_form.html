@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{% if editing %}Edit post{% else %}New post{% endif %} · space{% endblock %}
+{% block container_class %}home-page{% endblock %}
+{% block content %}
+    <div class="home-head"><h2>{% if editing %}Edit post{% else %}New post{% endif %}</h2></div>
+
+    <form class="composer" method="post" enctype="multipart/form-data" data-once data-upload>
+        {% csrf_token %}
+        {{ form.submit_token }}
+        {% include 'feed/_composer_head.html' %}
+
+        <div class="composer-body">
+            {{ form.non_field_errors }}
+            {{ form.submit_token.errors }}
+            {{ form.title.errors }}
+            {{ form.title }}
+            {{ form.body.errors }}
+            {{ form.body }}
+        </div>
+
+        <div class="composer-attach attach" data-music data-url="{% url 'music_search' %}">
+            {{ form.media.errors }}
+            {{ form.music.errors }}
+            {{ form.music }}
+
+            <div class="attach-bar">
+                {{ form.media }}
+                <label class="attach-btn" for="{{ form.media.id_for_label }}" title="Add an image or video">
+                    <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3.5"/><circle cx="9" cy="10" r="1.6"/><path d="M4 18l5-5 4 4 3-3 4 4"/></svg>
+                    <span class="sr-only">Add an image or video</span>
+                </label>
+                <button type="button" class="attach-btn" title="Add a song" aria-expanded="false" aria-controls="music-panel" data-music-toggle hidden>
+                    <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg>
+                    <span class="sr-only">Add a song</span>
+                </button>
+            </div>
+
+            {% if editing and saved.media %}
+            <div class="attach-chip">
+                {% if saved.media_type == 'image' %}<img class="attach-thumb" src="{{ saved.media.url }}" alt="">{% elif saved.thumbnail %}<img class="attach-thumb" src="{{ saved.thumbnail.url }}" alt="">{% else %}<span class="attach-thumb attach-thumb-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3.5"/><path d="M10.5 9.5v5l4-2.5z"/></svg></span>{% endif %}
+                <span class="music-meta">
+                    <strong class="music-title">Current {% if saved.media_type == 'video' %}video{% else %}image{% endif %}</strong>
+                    <span class="music-artist">Pick another file to replace it</span>
+                </span>
+                <label class="chip" for="{{ form.remove_media.id_for_label }}">{{ form.remove_media }}<span>Remove</span></label>
+            </div>
+            {% endif %}
+
+            <div class="attach-chip" data-file-chip hidden>
+                <img class="attach-thumb" data-file-thumb alt="" hidden>
+                <span class="attach-thumb attach-thumb-icon" data-file-icon hidden><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3.5"/><path d="M10.5 9.5v5l4-2.5z"/></svg></span>
+                <span class="music-meta">
+                    <strong class="music-title" data-file-name></strong>
+                    <span class="music-artist" data-file-size></span>
+                </span>
+                <button type="button" class="attach-x" aria-label="Remove file" data-file-remove>&times;</button>
+            </div>
+
+            <div class="attach-chip" data-chosen{% if not form.music_data %} hidden{% endif %}>
+                <img class="music-art" data-chosen-art src="{{ form.music_data.art }}" alt=""{% if not form.music_data.art %} hidden{% endif %}>
+                <span class="music-meta">
+                    <strong class="music-title" data-chosen-title>{{ form.music_data.title }}</strong>
+                    <span class="music-artist" data-chosen-artist>{{ form.music_data.artist }}</span>
+                </span>
+                <button type="button" class="attach-x" aria-label="Remove song" data-remove>&times;</button>
+            </div>
+
+            <div class="music-panel" id="music-panel" data-search-wrap hidden>
+                <input class="music-q" id="music-q" type="search" placeholder="Search a song or artist" aria-label="Search a song or artist" autocomplete="off" maxlength="100" data-q>
+                <ul class="music-results" data-results hidden></ul>
+            </div>
+
+            <p class="help">Images up to {{ max_image_mb }} MB, videos up to {{ max_video_mb }} MB (compressed for you). A song gives everyone a 30 second clip to play.</p>
+        </div>
+
+        <div class="upload-progress" data-progress role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" hidden>
+            <div class="upload-track"><div class="upload-fill" data-fill></div></div>
+            <span class="upload-pct" data-pct>0%</span>
+        </div>
+        <p class="upload-error errorlist" data-error hidden></p>
+
+        <footer class="composer-foot">
+            <a class="pill" href="{% if editing %}{{ saved.get_absolute_url }}{% else %}{% url 'home' %}{% endif %}">Cancel</a>
+            <button type="submit" data-submit data-busy="{% if editing %}Saving…{% else %}Publishing…{% endif %}">{% if editing %}Save{% else %}Publish{% endif %}</button>
+        </footer>
+    </form>
+    <script src="{% static 'js/upload.js' %}" defer></script>
+    <script src="{% static 'js/attach.js' %}" defer></script>
+    <script src="{% static 'js/music_pick.js' %}" defer></script>
+{% endblock %}

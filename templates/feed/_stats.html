@@ -1,0 +1,22 @@
+{% comment %}Heart + comment counts under a post or tweet. Needs `entry`.{% endcomment %}
+<div class="stats">
+    {% if user.is_authenticated %}
+    <form class="inline-form" method="post" action="{% url 'like_toggle' entry.pk %}">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+        <button type="submit" class="stat {% if entry.liked_by_me %}on{% endif %}" aria-label="{% if entry.liked_by_me %}Unlike{% else %}Like{% endif %}">
+            <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M10.7407 2C13.0889 2 14.6666 4.235 14.6666 6.32C14.6666 10.5425 8.1185 14 7.99998 14C7.88146 14 1.33331 10.5425 1.33331 6.32C1.33331 4.235 2.91109 2 5.25924 2C6.60739 2 7.48887 2.6825 7.99998 3.2825C8.51109 2.6825 9.39257 2 10.7407 2Z" fill="{% if entry.liked_by_me %}currentColor{% else %}none{% endif %}" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>{{ entry.like_count }}</span>
+        </button>
+    </form>
+    {% else %}
+    <span class="stat" aria-label="{{ entry.like_count }} like{{ entry.like_count|pluralize }}">
+        <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M10.7407 2C13.0889 2 14.6666 4.235 14.6666 6.32C14.6666 10.5425 8.1185 14 7.99998 14C7.88146 14 1.33331 10.5425 1.33331 6.32C1.33331 4.235 2.91109 2 5.25924 2C6.60739 2 7.48887 2.6825 7.99998 3.2825C8.51109 2.6825 9.39257 2 10.7407 2Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>{{ entry.like_count }}</span>
+    </span>
+    {% endif %}
+    <a class="stat" href="{{ entry.get_absolute_url }}" aria-label="{{ entry.reply_count }} comment{{ entry.reply_count|pluralize }}">
+        <svg width="14" height="14" viewBox="0 0 19 19" aria-hidden="true"><path d="M5 11.1666H14V9.66663H5V11.1666ZM5 8.91663H14V7.41663H5V8.91663ZM5 6.66663H14V5.16663H5V6.66663ZM17 17.1666L14 14.1666H3.5C3.0875 14.1666 2.73438 14.0198 2.44063 13.726C2.14688 13.4323 2 13.0791 2 12.6666V3.66663C2 3.25413 2.14688 2.901 2.44063 2.60725C2.73438 2.3135 3.0875 2.16663 3.5 2.16663H15.5C15.9125 2.16663 16.2656 2.3135 16.5594 2.60725C16.8531 2.901 17 3.25413 17 3.66663V17.1666ZM3.5 12.6666H14.6375L15.5 13.5104V3.66663H3.5V12.6666Z" fill="currentColor"/></svg>
+        <span>{{ entry.reply_count }}</span>
+    </a>
+</div>

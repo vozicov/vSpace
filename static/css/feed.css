@@ -1,0 +1,384 @@
+/* Posts as cards in a 1 / 2 / 3 column grid (the reference's "recommendations"),
+   tweets and comments as plain rows. Colors are `currentColor` so the same markup works on
+   the cream page and on a profile sheet of any color. */
+
+/* ---------- Grid ---------- */
+.rec-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4rem;
+    align-items: start;
+    margin-bottom: 2rem;
+}
+@media (min-width: 768px)  { .rec-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1024px) { .rec-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 1280px) { .rec-grid { gap: 8rem; margin-bottom: 4rem; } }
+.rec-row { grid-column: 1 / -1; max-width: 40rem; }
+
+/* ---------- One post card ---------- */
+.rec { min-width: 0; }
+.rec-media { position: relative; display: block; aspect-ratio: 1; overflow: hidden; }
+.rec-media:hover { text-decoration: none; }
+.rec-media img {
+    display: block; width: 100%; height: 100%;
+    object-fit: contain;            /* never cropped: stickers and transparent PNGs keep their shape */
+    transform: scale(0.95);
+    transition: transform 0.3s;
+}
+.rec-media:hover img { transform: scale(1); }
+.rec-text {
+    display: flex; align-items: center; justify-content: center;
+    width: 100%; height: 100%; padding: 1.25rem;
+    border: 1px solid var(--line);
+    background: color-mix(in srgb, currentColor 4%, transparent);
+    text-align: center; font-size: 1.125rem; font-weight: 700; line-height: 1.2; word-break: break-word;
+}
+.rec-badge {
+    position: absolute; top: 0.6rem; right: 0.6rem;
+    width: 1.75rem; height: 1.75rem; border-radius: 50%;
+    background: rgba(8, 6, 3, 0.65); color: #fff; font-size: 0.65rem; line-height: 1.75rem; text-align: center;
+}
+
+.rec-meta {
+    display: flex; justify-content: space-between; gap: 0.5rem;
+    margin-top: 1rem;
+    font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase;
+    opacity: 0.5;
+}
+.rec-meta a { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.rec-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.25rem; margin-top: 0.5rem; }
+.rec-title {
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    font-size: 0.875rem; font-weight: 500; overflow-wrap: anywhere;
+}
+.rec-title:hover { text-decoration: none; }
+
+.rec-body { display: block; margin-top: 0.25rem; font-size: 0.75rem; opacity: 0.7; overflow-wrap: anywhere; }
+.rec-body:hover { text-decoration: none; }
+.rec-body .clamp { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; white-space: pre-line; }
+.rec-body b { font-family: var(--mono); font-weight: 500; }
+
+/* The ••• menu (no JavaScript: a <details> element) */
+.menu { position: relative; flex-shrink: 0; }
+.menu summary {
+    list-style: none; cursor: pointer;
+    padding: 0.4rem 0.25rem; font-size: 0.7rem; line-height: 1; letter-spacing: 0.05em;
+    transform: rotate(90deg); opacity: 0.7;
+}
+.menu summary::-webkit-details-marker { display: none; }
+.menu summary:hover, .menu[open] summary { opacity: 1; }
+.menu-list {
+    position: absolute; right: 0; top: 100%; z-index: 20;
+    min-width: 11.5rem; padding: 0.35rem;
+    border: 1px solid var(--line); border-radius: 0.75rem;
+    background: var(--card-bg, var(--paper)); color: var(--card-fg, var(--ink));
+    box-shadow: 0 8px 24px rgba(8, 6, 3, 0.15);
+}
+.menu-list .linkbtn { display: block; width: 100%; padding: 0.55rem 0.7rem; border-radius: 0.5rem; font-size: 0.8125rem; }
+.menu-list .linkbtn:hover { background: color-mix(in srgb, currentColor 8%, transparent); }
+.menu-list form { display: block; }
+
+/* Heart and comment counts */
+.stats { display: flex; align-items: center; gap: 0.75rem; margin-top: 0.5rem; }
+.stat { display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.75rem; opacity: 0.6; cursor: pointer; }
+.stat:hover { opacity: 1; text-decoration: none; }
+.stat.on { opacity: 1; }
+.entry-actions .stats { margin-top: 0; }
+
+/* Owner's tools under a card on their own shelf */
+.rec-tools {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 0.9rem;
+    margin-top: 0.75rem; padding-top: 0.6rem;
+    border-top: 1px solid var(--line);
+    font-family: var(--mono); font-size: 0.6875rem; text-transform: uppercase; opacity: 0.75;
+}
+.rec-tools .linkbtn { font-size: inherit; text-transform: inherit; font-family: inherit; }
+.rec-tools a:hover, .rec-tools .linkbtn:hover { text-decoration: underline; }
+
+/* ---------- Tweets, comments and a post's own page ---------- */
+.entry { padding: 1.25rem 0; border-bottom: 1px solid var(--line); }
+.entry-header { display: flex; align-items: center; gap: 0.65rem; margin-bottom: 0.85rem; }
+.entry-who { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.1rem 0.5rem; min-width: 0; }
+.entry-who strong { font-size: 0.875rem; font-weight: 700; }
+.entry-who .small { font-family: var(--mono); opacity: 0.6; }
+.entry-time { margin-left: auto; flex-shrink: 0; font-family: var(--mono); font-size: 0.7rem; text-transform: uppercase; opacity: 0.5; }
+.reply-to { margin: -0.25rem 0 0.5rem; font-size: 0.75rem; opacity: 0.6; }
+
+.entry-media { display: block; width: 100%; max-height: 40rem; object-fit: contain; margin: 0 0 0.9rem; }
+video.entry-media { background: #000; }
+
+.entry h3 { margin: 0 0 0.35rem; font-size: 1.5rem; line-height: 1.15; }
+.entry p { margin: 0 0 0.75rem; font-size: 0.875rem; line-height: 1.4; opacity: 0.85; }
+.entry-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1.1rem; }
+.shelf-act {
+    padding: 0.25rem 0.8rem; border: 1px solid var(--line-strong);
+    background: transparent; color: inherit; font-size: 0.7rem; font-weight: 400;
+}
+.shelf-act.on { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+a.shelf-act { display: inline-block; border-radius: 999px; line-height: 1.25; }
+a.shelf-act:hover { background: color-mix(in srgb, currentColor 8%, transparent); text-decoration: none; }
+.menu-list a.linkbtn:hover { text-decoration: none; }
+
+/* ---------- Filters and pager ---------- */
+.filters { display: flex; gap: 1.25rem; font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em; }
+.filters a { padding-bottom: 0.25rem; border-bottom: 1px solid transparent; opacity: 0.55; }
+.filters a:hover { text-decoration: none; opacity: 1; }
+.filters .active { opacity: 1; border-bottom-color: currentColor; }
+
+.pager { display: flex; justify-content: space-between; padding: 1rem 0 2rem; font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; }
+.pager .muted { opacity: 0.5; }
+
+
+/* ---------- Home page (laid out like the reference's "For you" feed) ----------
+   One centered column. A compose card, then every post as a card with a 0.5rem radius that
+   wears its owner's profile background. */
+.container.home-page { max-width: 48rem; margin: 0 auto; padding-top: 1rem; }
+@media (min-width: 768px) { .container.home-page { padding-top: 2rem; } }
+.home-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+.home-head h2 { font-size: 1.125rem; font-weight: 600; color: var(--strong); }
+
+.compose {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    margin-bottom: 1rem; padding: 1rem;
+    border: 1px solid var(--hair); border-radius: 0.5rem;
+    background: var(--surface); color: var(--surface-fg); transition: box-shadow 0.1s;
+}
+.compose:hover { text-decoration: none; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1); }
+.compose-who { display: flex; align-items: center; gap: 1rem; min-width: 0; flex: 1; }
+.compose .avatar { width: 2.5rem; height: 2.5rem; }
+.compose-text { display: flex; flex-direction: column; min-width: 0; }
+.compose-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.875rem; }
+.compose-handle { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.75rem; opacity: 0.7; }
+.compose-plus { flex: none; display: flex; align-items: center; justify-content: center; width: 2.5rem; height: 2.5rem; border-radius: 50%; background: var(--paper); color: var(--ink); }
+
+.home-post {
+    --card-bg: var(--post-bg); --card-fg: var(--post-fg);
+    --ink: var(--post-fg); --on-accent: var(--post-bg);
+    --accent: color-mix(in srgb, #6d4c41 70%, var(--post-fg));
+    margin-bottom: 1rem;
+    border: 1px solid color-mix(in srgb, var(--post-fg) 14%, transparent); border-radius: 0.5rem;
+    background: var(--post-bg); color: var(--post-fg);
+}
+/* a profile background picture shows through a veil of the profile color, so the text stays readable */
+.home-post.has-img {
+    background:
+        linear-gradient(color-mix(in srgb, var(--post-bg) 80%, transparent), color-mix(in srgb, var(--post-bg) 80%, transparent)),
+        var(--post-img) center / cover;
+}
+.hp-head { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; padding: 1rem 1rem 0.75rem; }
+.hp-who { display: flex; align-items: center; gap: 0.625rem; min-width: 0; flex: 1; }
+.hp-who:hover { text-decoration: none; opacity: 0.8; }
+.hp-who .avatar { width: 2rem; height: 2rem; }
+.hp-names { display: flex; flex-direction: column; min-width: 0; }
+.hp-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.875rem; font-weight: 500; line-height: 1.15; }
+.hp-sub { display: flex; align-items: baseline; gap: 0.5rem; min-width: 0; font-size: 0.75rem; line-height: 1.15; opacity: 0.6; white-space: nowrap; }
+.hp-handle { overflow: hidden; text-overflow: ellipsis; }
+
+.hp-body { padding: 0.25rem 1rem 0; }
+.hp-body h3 { margin: 0 0 0.5rem; font-size: 1.25rem; line-height: 1.15; overflow-wrap: anywhere; }
+.hp-body h3 a:hover { text-decoration: none; }
+.hp-text { font-size: 0.875rem; line-height: 1.625; overflow-wrap: anywhere; }
+.hp-text .clamp { display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; white-space: pre-line; }
+.hp-more { display: inline-block; margin-top: 0.25rem; font-size: 0.875rem; font-weight: 700; }
+.hp-media { display: flex; align-items: center; justify-content: center; height: 14.6875rem; margin: 1rem 0; }
+.hp-media a { display: flex; align-items: center; justify-content: center; max-width: 100%; height: 100%; }
+.hp-media img, .hp-media video { display: block; width: auto; max-width: 100%; height: auto; max-height: 100%; object-fit: contain; background: none; }
+
+.hp-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem; padding: 0.25rem 1rem 1rem; }
+.hp-foot .stats { margin: 0; gap: 0.5rem; }
+.hp-foot .stat { gap: 0.25rem; padding: 0.25rem; font-size: 0.8125rem; opacity: 0.9; }
+.hp-foot .stat svg { width: 1.25rem; height: 1.25rem; }
+
+/* Computer: everything on the home page is bigger */
+@media (min-width: 768px) {
+    .home-head { margin-bottom: 1.75rem; }
+    .home-head h2 { font-size: 1.5rem; }
+    .compose { padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; }
+    .compose .avatar { width: 3rem; height: 3rem; }
+    .compose-name { font-size: 1.0625rem; }
+    .compose-handle { font-size: 0.875rem; }
+    .compose-plus { width: 3rem; height: 3rem; }
+    .home-post { margin-bottom: 1.5rem; }
+    .hp-head { padding: 1.5rem 1.5rem 1rem; }
+    .hp-who { gap: 0.9rem; }
+    .hp-who .avatar { width: 2.75rem; height: 2.75rem; }
+    .hp-name { font-size: 1.0625rem; }
+    .hp-sub { font-size: 0.875rem; }
+    .hp-body { padding: 0.25rem 1.5rem 0; }
+    .hp-body h3 { margin-bottom: 0.75rem; font-size: 1.75rem; }
+    .hp-text { font-size: 1.0625rem; }
+    .hp-more { font-size: 1rem; }
+    .hp-media { height: 22rem; margin: 1.5rem 0; }
+    .hp-foot { padding: 0.25rem 1.5rem 1.5rem; }
+    .hp-foot .stat { font-size: 0.9375rem; }
+    .hp-foot .stat svg { width: 1.5rem; height: 1.5rem; }
+    .hp-foot .shelf-act { padding: 0.4rem 1rem; font-size: 0.8125rem; }
+}
+
+/* ---------- Explore: a search bar, then the newest pictures as tilted squares ---------- */
+.container.explore-page { max-width: 72rem; margin: 0 auto; padding-top: 1rem; }
+@media (min-width: 768px) { .container.explore-page { padding-top: 2rem; } }
+.search {
+    display: flex; align-items: center; gap: 0.75rem;
+    max-width: 36rem; margin: 0 auto 2rem; padding: 0.75rem 1.25rem;
+    border: 1px solid var(--hair); border-radius: 999px;
+    background: var(--surface); color: var(--surface-fg);
+}
+.search:focus-within { border-color: var(--hair-focus-soft); }
+.search svg { flex: none; opacity: 0.6; }
+.search input { flex: 1; width: auto; min-width: 0; padding: 0; border: 0; border-radius: 0; background: none; font: inherit; font-size: 1rem; outline: none; }
+.search input:focus { outline: none; }
+
+/* 3 across on a phone, 5 across on a computer. Every picture is the same square. */
+.explore-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem 0.75rem; padding: 0.5rem; margin-bottom: 2rem; }
+@media (min-width: 768px) { .explore-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 2rem 1.5rem; } }
+.explore-item { display: block; aspect-ratio: 1; transform: rotate(var(--rot, 0deg)); transition: transform 0.2s; }
+.explore-item:hover { text-decoration: none; transform: rotate(0deg) scale(1.05); position: relative; z-index: 1; }
+.explore-item img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+
+/* ---------- Composer: the New post and Tweets forms ----------
+   Same card as the home page's compose box and posts: 0.5rem radius, soft border, serif title,
+   pill buttons. The fields have no boxes of their own; the card is the box. */
+.composer {
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--hair); border-radius: 0.5rem;
+    background: var(--surface); color: var(--surface-fg);
+    transition: border-color 0.15s;
+}
+.composer:focus-within { border-color: var(--hair-focus); }
+.composer [hidden] { display: none; }
+
+.composer-head { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1rem 0.25rem; }
+.composer-head .avatar { width: 2.5rem; height: 2.5rem; }
+.composer-who { display: flex; flex-direction: column; min-width: 0; }
+.composer-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.875rem; font-weight: 500; line-height: 1.15; }
+.composer-handle { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.75rem; line-height: 1.15; opacity: 0.6; }
+
+.composer-body { padding: 0.5rem 1rem 1rem; }
+.composer input[type="text"], .composer textarea {
+    display: block; width: 100%; margin: 0; padding: 0.4rem 0;
+    border: 0; border-radius: 0; background: none; color: inherit; outline: none;
+}
+.composer input[type="text"] { font-family: var(--serif); font-size: 1.5rem; font-weight: 700; line-height: 1.15; }
+.composer textarea { font-size: 0.9375rem; line-height: 1.625; resize: vertical; }
+.composer ::placeholder { color: currentColor; opacity: 0.4; }
+.composer input[type="text"]:focus, .composer textarea:focus { outline: none; }
+
+.composer-attach { padding: 0.9rem 1rem; border-top: 1px solid var(--hair-soft); }
+.composer-attach label { margin-bottom: 0.6rem; }
+.composer input[type="file"] { padding: 0; border: 0; border-radius: 0; background: none; font-size: 0.8125rem; }
+.composer input[type="file"]::file-selector-button {
+    margin-right: 0.75rem; padding: 0.4rem 1.1rem;
+    border: 1px solid var(--line-strong); border-radius: 999px;
+    background: transparent; color: inherit; font: inherit; font-size: 0.75rem; cursor: pointer;
+}
+.composer input[type="file"]::file-selector-button:hover { background: color-mix(in srgb, currentColor 8%, transparent); }
+
+.composer-foot {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    padding: 0.75rem 1rem; border-top: 1px solid var(--hair-soft);
+}
+.composer-foot button { padding: 0.5rem 1.75rem; }
+.composer-count { font-family: var(--mono); font-size: 0.75rem; opacity: 0.6; }
+.composer .errorlist { padding-left: 0; list-style: none; }
+
+/* The upload bar: appears only while a file is being sent. */
+.upload-progress {
+    display: flex; align-items: center; gap: 0.75rem;
+    padding: 0.75rem 1rem; border-top: 1px solid var(--hair-soft);
+}
+.upload-track { flex: 1; height: 0.5rem; overflow: hidden; border-radius: 999px; background: color-mix(in srgb, var(--ink) 10%, transparent); }
+.upload-fill { width: var(--pct, 0%); height: 100%; border-radius: inherit; background: var(--accent); transition: width 0.15s linear; }
+.upload-pct { min-width: 5.5rem; text-align: right; font-family: var(--mono); font-size: 0.75rem; }
+.upload-progress.is-processing .upload-fill { animation: upload-pulse 1.2s ease-in-out infinite; }
+@keyframes upload-pulse { 50% { opacity: 0.45; } }
+.upload-error { margin: 0; padding: 0 1rem 0.75rem; }
+
+/* A locked button (the form was already sent) */
+button:disabled { opacity: 0.55; cursor: not-allowed; }
+
+@media (min-width: 768px) {
+    .composer-head { padding: 1.25rem 1.5rem 0.25rem; }
+    .composer-head .avatar { width: 3rem; height: 3rem; }
+    .composer-name { font-size: 1.0625rem; }
+    .composer-handle { font-size: 0.875rem; }
+    .composer-body { padding: 0.5rem 1.5rem 1.25rem; }
+    .composer input[type="text"] { font-size: 1.75rem; }
+    .composer textarea { font-size: 1.0625rem; }
+    .composer-attach, .composer-foot, .upload-progress { padding-left: 1.5rem; padding-right: 1.5rem; }
+    .upload-error { padding: 0 1.5rem 0.75rem; }
+}
+
+
+/* ---------- Search: the bar and the drawer that drops from it ---------- */
+.search-box { position: relative; z-index: 20; max-width: 36rem; margin: 0 auto 2rem; }
+.search-box .search { max-width: none; margin: 0; }
+.search input[type="search"] { -webkit-appearance: none; appearance: none; }
+.search input[type="search"]::-webkit-search-cancel-button, .search input[type="search"]::-webkit-search-decoration { -webkit-appearance: none; display: none; }
+.search-clear { flex: none; width: 1.75rem; height: 1.75rem; padding: 0; border: 0; border-radius: 50%; background: color-mix(in srgb, var(--tint) 8%, transparent); color: inherit; font-size: 1.15rem; line-height: 1; }
+.search-clear:hover { opacity: 1; background: color-mix(in srgb, var(--tint) 16%, transparent); }
+.search-clear[hidden] { display: none; }
+
+.drawer {
+    position: absolute; top: calc(100% + 0.5rem); left: 0; right: 0;
+    max-height: min(34rem, calc(100dvh - 10rem)); overflow-y: auto; overscroll-behavior: contain;
+    border: 1px solid var(--hair); border-radius: 0.75rem; background: var(--surface); color: var(--surface-fg);
+    box-shadow: 0 14px 34px var(--shadow);
+    opacity: 0; visibility: hidden; transform: translateY(-0.5rem);
+    transition: opacity 0.15s, transform 0.15s, visibility 0s linear 0.15s;
+}
+.drawer.open { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+.drawer-body { transition: opacity 0.12s; }
+.drawer.loading .drawer-body { opacity: 0.45; }
+
+.drawer-tabs {
+    position: sticky; top: 0; z-index: 2; display: flex; gap: 0.4rem; padding: 0.75rem 0.75rem 0.5rem;
+    overflow-x: auto; background: var(--surface); scrollbar-width: none;
+}
+.drawer-tabs::-webkit-scrollbar { display: none; }
+.drawer-tab {
+    flex: none; padding: 0.35rem 0.95rem; border: 1px solid var(--line-strong); border-radius: 999px;
+    font-size: 0.75rem; white-space: nowrap;
+}
+.drawer-tab:hover { text-decoration: none; background: color-mix(in srgb, var(--tint) 6%, transparent); }
+.drawer-tab.on, .drawer-tab.on:hover { border-color: var(--accent); background: var(--accent); color: var(--on-accent); }
+
+.drawer-hint { margin: 0; padding: 1.5rem 1rem; text-align: center; font-size: 0.875rem; opacity: 0.65; }
+.sr-sec { padding: 0.25rem 0.5rem 0.5rem; }
+.sr-sec h4 { margin: 0.5rem 0.5rem 0.3rem; font-family: var(--mono); font-size: 0.6875rem; font-weight: 400; letter-spacing: 0.04em; text-transform: uppercase; opacity: 0.6; }
+.sr-item { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.6rem 0.5rem; border-radius: 0.5rem; }
+.sr-item:hover { text-decoration: none; background: color-mix(in srgb, var(--tint) 5%, transparent); }
+.sr-item:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; background: color-mix(in srgb, var(--tint) 5%, transparent); }
+.sr-item .avatar { width: 2.5rem; height: 2.5rem; }
+.sr-thumb { flex: none; width: 2.5rem; height: 2.5rem; border-radius: 0.4rem; object-fit: cover; }
+.sr-main { display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; }
+.sr-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.875rem; font-weight: 700; }
+.sr-text { display: -webkit-box; overflow: hidden; -webkit-line-clamp: 2; -webkit-box-orient: vertical; font-size: 0.8125rem; line-height: 1.3; opacity: 0.8; overflow-wrap: anywhere; }
+.sr-meta { font-size: 0.6875rem; opacity: 0.55; }
+.sr-item mark { padding: 0 0.1rem; border-radius: 0.15rem; background: color-mix(in srgb, var(--accent) 24%, transparent); color: inherit; }
+.drawer-all { position: sticky; bottom: 0; display: block; padding: 0.85rem 1rem; background: var(--surface); border-top: 1px solid var(--hair-soft); font-size: 0.8125rem; font-weight: 700; text-align: center; }
+.drawer-all:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; }
+
+/* the full results page: the same list, drawn on the page instead of in a drawer */
+.search-page { max-width: 36rem; margin: 0 auto; border: 1px solid var(--hair); border-radius: 0.75rem; background: var(--surface); color: var(--surface-fg); }
+.search-page .drawer-tabs { border-radius: 0.75rem 0.75rem 0 0; }
+
+
+/* ---------- Notifications ---------- */
+.notif-list { display: flex; flex-direction: column; }
+.notif {
+    display: flex; align-items: flex-start; gap: 0.9rem; padding: 0.95rem 0.75rem;
+    border-bottom: 1px solid var(--line); border-radius: 0.5rem;
+}
+.notif:hover { text-decoration: none; background: color-mix(in srgb, var(--tint) 5%, transparent); }
+.notif .avatar { flex: none; width: 2.75rem; height: 2.75rem; }
+.notif-text { display: flex; flex-direction: column; gap: 0.2rem; min-width: 0; }
+.notif-line { font-size: 0.9375rem; line-height: 1.35; overflow-wrap: anywhere; }
+.notif-line em { font-style: normal; font-weight: 600; }
+.notif-quote { font-size: 0.875rem; line-height: 1.35; opacity: 0.7; overflow-wrap: anywhere; }
+.notif-time { font-size: 0.75rem; opacity: 0.55; }
+/* what was new when you opened the page */
+.notif.unread { background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.notif.unread .notif-line::after { content: ''; display: inline-block; width: 0.5rem; height: 0.5rem; margin-left: 0.5rem; border-radius: 50%; background: var(--accent); vertical-align: middle; }

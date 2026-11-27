@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Notifications · space{% endblock %}
+{% block container_class %}home-page{% endblock %}
+{% block content %}
+    <div class="home-head"><h2>Notifications</h2></div>
+
+    <div class="notif-list">
+        {% for n in items %}
+            <a class="notif{% if not n.is_read %} unread{% endif %}"
+               href="{% if n.kind == 'follow' %}{% url 'profile' n.actor.username %}{% elif n.kind == 'comment' and n.entry.parent %}{{ n.entry.parent.get_absolute_url }}{% elif n.entry %}{{ n.entry.get_absolute_url }}{% else %}{% url 'profile' n.actor.username %}{% endif %}">
+                {% include 'feed/_avatar.html' with p=n.actor.profile %}
+                <span class="notif-text">
+                    <span class="notif-line">
+                        <strong>{{ n.actor.profile.name }}</strong>
+                        {% if n.kind == 'follow' %}started following you.
+                        {% elif n.kind == 'like' %}liked your {% if n.entry.kind == 'post' %}post <em>{{ n.entry.title|truncatechars:40 }}</em>{% elif n.entry.parent_id %}comment{% else %}tweet{% endif %}.
+                        {% else %}{% if n.entry.parent.kind == 'post' %}commented on your post <em>{{ n.entry.parent.title|truncatechars:40 }}</em>{% elif n.entry.parent.parent_id %}replied to your comment{% else %}replied to your tweet{% endif %}.{% endif %}
+                    </span>
+                    {% if n.kind == 'comment' %}<span class="notif-quote">{{ n.entry.body|truncatechars:120 }}</span>{% endif %}
+                    <span class="notif-time">{{ n.created_at|timesince }} ago</span>
+                </span>
+            </a>
+        {% empty %}
+            <p class="note">Nothing yet. When someone follows you, likes or comments on what you wrote, it shows up here.</p>
+        {% endfor %}
+    </div>
+    {% include 'feed/_pager.html' %}
+{% endblock %}

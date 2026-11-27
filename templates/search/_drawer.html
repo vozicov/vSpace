@@ -1,0 +1,8 @@
+{% comment %}The inside of the drawer (sent to search.js as a fragment).{% endcomment %}
+{% include 'search/_tabs.html' %}
+<div class="drawer-body">
+    {% include 'search/_results.html' %}
+</div>
+{% if has_any %}
+    <a class="drawer-all" href="{% url 'search' %}?q={{ q|urlencode }}{% if type != 'all' %}&type={{ type }}{% endif %}">See all results for &ldquo;{{ q }}&rdquo;</a>
+{% endif %}

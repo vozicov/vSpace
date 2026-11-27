@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Shelf{% endblock %}
+{% block container_class %}wide{% endblock %}
+{% block content %}
+    <h2 class="block-title">Shelf</h2>
+    <div class="panel">
+        <p class="alert-error">{{ message }}</p>
+        <p><a href="{{ back }}">&larr; Back</a> &middot; <a href="{% url 'shelf_edit' %}">My shelf</a></p>
+    </div>
+{% endblock %}
