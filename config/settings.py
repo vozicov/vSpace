@@ -170,3 +170,12 @@ MAILERS = {
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'login'
 LOGIN_URL = 'login'
+
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [
+    BASE_DIR / 'assets',
+    BASE_DIR / 'css',
+    BASE_DIR / 'js',
+    BASE_DIR / 'static',
+]
