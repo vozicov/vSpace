@@ -179,3 +179,6 @@ STATICFILES_DIRS = [
     BASE_DIR / 'js',
     BASE_DIR / 'static',
 ]
+
+
+CSRF_TRUSTED_ORIGIN = ["https://space.shizalab.com", "*"]
