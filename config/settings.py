@@ -181,4 +181,6 @@ STATICFILES_DIRS = [
 ]
 
 
-CSRF_TRUSTED_ORIGIN = ["https://space.shizalab.com", "*"]
+CSRF_TRUSTED_ORIGINS = [
+    "https://space.shizalab.com",
+]
